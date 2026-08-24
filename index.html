@@ -255,7 +255,7 @@ if (nombreUsuario !== "") {
 
     if (texto === "") return;
 
-    push(ref(db, "mensajes"), {
+push(ref(db, "conversaciones/" + usuarioId + "/mensajes"), {
   texto: texto,
   fecha: Date.now(),
   usuarioId: usuarioId,
@@ -274,7 +274,9 @@ if (nombreUsuario !== "") {
     }
   });
 
-  onChildAdded(ref(db, "mensajes"), (snapshot) => {
+onChildAdded(
+  ref(db, "conversaciones/" + usuarioId + "/mensajes"),
+  (snapshot) => {
 
     const datos = snapshot.val();
 
