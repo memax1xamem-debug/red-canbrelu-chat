@@ -129,35 +129,48 @@
 
   </div>
 
-  <script>
-    function enviarMensaje() {
+  <!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+  import {
+    getDatabase,
+    ref,
+    push,
+    onChildAdded
+  } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
-      const input = document.getElementById("mensaje");
-      const texto = input.value.trim();
+  const firebaseConfig = {
+    apiKey: "TU_API_KEY",
+    authDomain: "red-canbrelu-chat.firebaseapp.com",
+    projectId: "red-canbrelu-chat",
+    storageBucket: "red-canbrelu-chat.firebasestorage.app",
+    messagingSenderId: "733334279827",
+    appId: "TU_APP_ID",
+    measurementId: "G-ZXGC8CCYK3"
+  };
 
-      if (texto === "") {
-        return;
-      }
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
 
-      const mensajes = document.getElementById("mensajes");
+  window.enviarMensaje = function () {
+    const input = document.getElementById("mensaje");
+    const texto = input.value.trim();
 
-      const nuevoMensaje = document.createElement("div");
-      nuevoMensaje.className = "mensaje enviado";
-      nuevoMensaje.textContent = texto;
+    if (texto === "") return;
 
-      mensajes.appendChild(nuevoMensaje);
-
-      input.value = "";
-
-      mensajes.scrollTop = mensajes.scrollHeight;
-    }
-
-    document.getElementById("mensaje").addEventListener("keypress", function(event) {
-      if (event.key === "Enter") {
-        enviarMensaje();
-      }
+    push(ref(db, "mensajes"), {
+      texto: texto,
+      fecha: Date.now()
     });
-  </script>
+
+    input.value = "";
+  };
+
+  onChildAdded(ref(db, "mensajes"), (snapshot) => {
+    const datos = snapshot.val();
+    console.log(datos.texto);
+  });
+</script>
 
 </body>
   </html>
