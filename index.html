@@ -126,7 +126,7 @@
 
       <button onclick="enviarMensaje()">➤</button>
     </div>
-
+<div id="listaMensajes"></div>
   </div>
   
   <!-- Firebase -->
@@ -167,7 +167,7 @@
     input.value = "";
   };
   
-<div id="listaMensajes"></div>
+
   
   onChildAdded(ref(db, "mensajes"), (snapshot) => {
     const datos = snapshot.val();
