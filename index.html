@@ -169,8 +169,14 @@
 
   onChildAdded(ref(db, "mensajes"), (snapshot) => {
     const datos = snapshot.val();
-    console.log(datos.texto);
-  });
+
+    const lista = document.getElementById("listaMensajes");
+
+    const mensaje = document.createElement("div");
+    mensaje.textContent = datos.texto;
+
+    lista.appendChild(mensaje);
+});
 </script>
 
 </body>
