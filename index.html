@@ -166,7 +166,9 @@
 
     input.value = "";
   };
-
+  
+<div id="listaMensajes"></div>
+  
   onChildAdded(ref(db, "mensajes"), (snapshot) => {
     const datos = snapshot.val();
 
