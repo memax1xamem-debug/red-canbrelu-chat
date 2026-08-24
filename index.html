@@ -153,7 +153,7 @@
   const db = getDatabase(app);
 
   window.enviarMensaje = function () {
-    const input = document.getElementById("mensaje");
+    const input = document.getElementById("mensajes");
     const texto = input.value.trim();
 
     if (texto === "") return;
@@ -176,7 +176,7 @@
     const mensaje = document.createElement("div");
     mensaje.textContent = datos.texto;
 
-    lista.appendChild(mensaje);
+    lista.appendChild(mensajes);
 });
 </script>
 
