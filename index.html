@@ -29,7 +29,16 @@
       display: flex;
       flex-direction: column;
       box-shadow: 0 0 15px rgba(0,0,0,0.15);
-    }
+   
+      <div class="usuario">
+  <input
+    type="text"
+    id="nombreUsuario"
+    placeholder="Tu nombre..."
+    maxlength="25"
+  >
+  <button id="guardarNombre">Guardar</button>
+</div>}
 
     .header {
       background: #075e54;
@@ -118,6 +127,38 @@
       background: #064c44;
     }
   </style>
+  .usuario {
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+  background: #ffffff;
+  border-bottom: 1px solid #ddd;
+}
+
+.usuario input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  outline: none;
+}
+
+.usuario button {
+  border: none;
+  background: #075e54;
+  color: white;
+  padding: 0 15px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.nombre {
+  display: block;
+  font-size: 12px;
+  font-weight: bold;
+  color: #075e54;
+  margin-bottom: 4px;
+}
 </head>
 
 <body>
@@ -173,7 +214,29 @@
   const input = document.getElementById("mensaje");
   const lista = document.getElementById("mensajes");
   const boton = document.getElementById("botonEnviar");
+const inputNombre = document.getElementById("nombreUsuario");
+const guardarNombre = document.getElementById("guardarNombre");
 
+let nombreUsuario = localStorage.getItem("nombreUsuario") || "";
+
+inputNombre.value = nombreUsuario;
+
+guardarNombre.addEventListener("click", () => {
+  const nombre = inputNombre.value.trim();
+
+  if (nombre === "") return;
+
+  nombreUsuario = nombre;
+  localStorage.setItem("nombreUsuario", nombre);
+
+  inputNombre.disabled = true;
+  guardarNombre.textContent = "✓";
+});
+
+if (nombreUsuario !== "") {
+  inputNombre.disabled = true;
+  guardarNombre.textContent = "✓";
+}
   // Crear o recuperar ID de este usuario
   let usuarioId = localStorage.getItem("usuarioId");
 
@@ -193,10 +256,11 @@
     if (texto === "") return;
 
     push(ref(db, "mensajes"), {
-      texto: texto,
-      fecha: Date.now(),
-      usuarioId: usuarioId
-    });
+  texto: texto,
+  fecha: Date.now(),
+  usuarioId: usuarioId,
+  nombre: nombreUsuario || "Usuario"
+});
 
     input.value = "";
     input.focus();
@@ -239,7 +303,12 @@
         minute: "2-digit"
       });
     }
-
+if (datos.usuarioId !== usuarioId) {
+  const nombre = document.createElement("span");
+  nombre.classList.add("nombre");
+  nombre.textContent = datos.nombre || "Usuario";
+  mensaje.appendChild(nombre);
+}
     mensaje.appendChild(texto);
     mensaje.appendChild(hora);
 
