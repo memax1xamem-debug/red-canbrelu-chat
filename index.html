@@ -51,15 +51,18 @@
       padding: 15px;
       overflow-y: auto;
       background: #e5ddd5;
+      display: flex;
+      flex-direction: column;
     }
 
     .mensaje {
       max-width: 80%;
-      padding: 10px 14px;
-      margin-bottom: 10px;
+      padding: 9px 12px;
+      margin-bottom: 8px;
       border-radius: 12px;
       font-size: 15px;
       word-wrap: break-word;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.15);
     }
 
     .recibido {
@@ -70,6 +73,18 @@
     .enviado {
       background: #dcf8c6;
       margin-left: auto;
+    }
+
+    .texto {
+      display: block;
+    }
+
+    .hora {
+      display: block;
+      text-align: right;
+      font-size: 10px;
+      color: #777;
+      margin-top: 5px;
     }
 
     .entrada {
@@ -98,39 +113,42 @@
       font-size: 20px;
       cursor: pointer;
     }
+
+    .entrada button:hover {
+      background: #064c44;
+    }
   </style>
 </head>
 
 <body>
 
-  <div class="chat">
+<div class="chat">
 
-    <div class="header">
-      Red Canbrelú Chat
-      <div class="subtitulo">Mensajería directa</div>
-    </div>
-
-    <div class="mensajes" id="mensajes">
-      <div class="mensaje recibido">
-        ¡Bienvenido a Red Canbrelú Chat! 👋
-      </div>
-    </div>
-
-    <div class="entrada">
-      <input
-        type="text"
-        id="mensaje"
-        placeholder="Escribí un mensaje..."
-        autocomplete="off"
-      >
-
-      <button onclick="enviarMensaje()">➤</button>
-    </div>
+  <div class="header">
+    Red Canbrelú Chat
+    <div class="subtitulo">Mensajería directa</div>
   </div>
-  
-  <!-- Firebase -->
+
+  <div class="mensajes" id="mensajes"></div>
+
+  <div class="entrada">
+    <input
+      type="text"
+      id="mensaje"
+      placeholder="Escribí un mensaje..."
+      autocomplete="off"
+    >
+
+    <button id="botonEnviar">➤</button>
+  </div>
+
+</div>
+
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+
+  import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+
   import {
     getDatabase,
     ref,
@@ -138,25 +156,35 @@
     onChildAdded
   } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
+
   const firebaseConfig = {
-  apiKey: "AIzaSyCKh_AHfvDSlAMxs1Kl-hvQse6Dj1g6sBo",
-  authDomain: "red-canbrelu-chat.firebaseapp.com",
-  databaseURL: "https://red-canbrelu-chat-default-rtdb.firebaseio.com/",
-  projectId: "red-canbrelu-chat",
-  storageBucket: "red-canbrelu-chat.firebasestorage.app",
-  messagingSenderId: "733334279827",
-  appId: "1:733334279827:web:7fdec02211ae5818ae9f66",
-  measurementId: "G-ZXGC8CCYK3"
-};
+    apiKey: "AIzaSyCKh_AHfvDSlAMxs1Kl-hvQse6Dj1g6sBo",
+    authDomain: "red-canbrelu-chat.firebaseapp.com",
+    databaseURL: "https://red-canbrelu-chat-default-rtdb.firebaseio.com/",
+    projectId: "red-canbrelu-chat",
+    storageBucket: "red-canbrelu-chat.firebasestorage.app",
+    messagingSenderId: "733334279827",
+    appId: "1:733334279827:web:7fdec02211ae5818ae9f66",
+    measurementId: "G-ZXGC8CCYK3"
+  };
+
 
   const app = initializeApp(firebaseConfig);
+
   const db = getDatabase(app);
 
-  window.enviarMensaje = function () {
-    const input = document.getElementById("mensajes");
+  const input = document.getElementById("mensaje");
+  const lista = document.getElementById("mensajes");
+  const boton = document.getElementById("botonEnviar");
+
+
+  function enviarMensaje() {
+
     const texto = input.value.trim();
 
-    if (texto === "") return;
+    if (texto === "") {
+      return;
+    }
 
     push(ref(db, "mensajes"), {
       texto: texto,
@@ -164,21 +192,67 @@
     });
 
     input.value = "";
-  };
-  
+    input.focus();
+  }
 
-  
+
+  boton.addEventListener("click", enviarMensaje);
+
+
+  input.addEventListener("keydown", function(event) {
+
+    if (event.key === "Enter") {
+      enviarMensaje();
+    }
+
+  });
+
+
   onChildAdded(ref(db, "mensajes"), (snapshot) => {
+
     const datos = snapshot.val();
 
-    const lista = document.getElementById("mensajes");
-
     const mensaje = document.createElement("div");
-    mensaje.textContent = datos.texto;
 
-    lista.appendChild(mensajes);
-});
+    mensaje.classList.add("mensaje", "recibido");
+
+
+    const texto = document.createElement("span");
+
+    texto.classList.add("texto");
+
+    texto.textContent = datos.texto;
+
+
+    const hora = document.createElement("span");
+
+    hora.classList.add("hora");
+
+
+    if (datos.fecha) {
+
+      const fecha = new Date(datos.fecha);
+
+      hora.textContent = fecha.toLocaleTimeString("es-AR", {
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+
+    }
+
+
+    mensaje.appendChild(texto);
+
+    mensaje.appendChild(hora);
+
+    lista.appendChild(mensaje);
+
+
+    lista.scrollTop = lista.scrollHeight;
+
+  });
+
 </script>
 
 </body>
-  </html>
+</html>
