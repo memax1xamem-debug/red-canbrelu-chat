@@ -156,7 +156,6 @@
     onChildAdded
   } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
-
   const firebaseConfig = {
     apiKey: "AIzaSyCKh_AHfvDSlAMxs1Kl-hvQse6Dj1g6sBo",
     authDomain: "red-canbrelu-chat.firebaseapp.com",
@@ -168,91 +167,85 @@
     measurementId: "G-ZXGC8CCYK3"
   };
 
-
   const app = initializeApp(firebaseConfig);
-
   const db = getDatabase(app);
 
   const input = document.getElementById("mensaje");
   const lista = document.getElementById("mensajes");
   const boton = document.getElementById("botonEnviar");
 
+  // Crear o recuperar ID de este usuario
+  let usuarioId = localStorage.getItem("usuarioId");
+
+  if (!usuarioId) {
+    usuarioId =
+      "usuario_" +
+      Date.now() +
+      "_" +
+      Math.random().toString(36).substring(2, 8);
+
+    localStorage.setItem("usuarioId", usuarioId);
+  }
 
   function enviarMensaje() {
-
     const texto = input.value.trim();
 
-    if (texto === "") {
-      return;
-    }
+    if (texto === "") return;
 
     push(ref(db, "mensajes"), {
       texto: texto,
-      fecha: Date.now()
+      fecha: Date.now(),
+      usuarioId: usuarioId
     });
 
     input.value = "";
     input.focus();
   }
 
-
   boton.addEventListener("click", enviarMensaje);
 
-
   input.addEventListener("keydown", function(event) {
-
     if (event.key === "Enter") {
       enviarMensaje();
     }
-
   });
-
 
   onChildAdded(ref(db, "mensajes"), (snapshot) => {
 
     const datos = snapshot.val();
 
     const mensaje = document.createElement("div");
+    mensaje.classList.add("mensaje");
 
-    mensaje.classList.add("mensaje", "recibido");
-
+    // Si el mensaje pertenece a este navegador
+    if (datos.usuarioId === usuarioId) {
+      mensaje.classList.add("enviado");
+    } else {
+      mensaje.classList.add("recibido");
+    }
 
     const texto = document.createElement("span");
-
     texto.classList.add("texto");
-
     texto.textContent = datos.texto;
 
-
     const hora = document.createElement("span");
-
     hora.classList.add("hora");
 
-
     if (datos.fecha) {
-
       const fecha = new Date(datos.fecha);
 
       hora.textContent = fecha.toLocaleTimeString("es-AR", {
         hour: "2-digit",
         minute: "2-digit"
       });
-
     }
 
-
     mensaje.appendChild(texto);
-
     mensaje.appendChild(hora);
 
     lista.appendChild(mensaje);
 
-
     lista.scrollTop = lista.scrollHeight;
-
   });
 
 </script>
-
-</body>
-</html>
