@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Red Canbrelú Chat</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #f2f2f2;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .chat {
+      width: 100%;
+      max-width: 500px;
+      height: 100vh;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 15px rgba(0,0,0,0.15);
+    }
+
+    .header {
+      background: #075e54;
+      color: white;
+      padding: 18px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .subtitulo {
+      font-size: 13px;
+      font-weight: normal;
+      margin-top: 4px;
+    }
+
+    .mensajes {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+      background: #e5ddd5;
+    }
+
+    .mensaje {
+      max-width: 80%;
+      padding: 10px 14px;
+      margin-bottom: 10px;
+      border-radius: 12px;
+      font-size: 15px;
+      word-wrap: break-word;
+    }
+
+    .recibido {
+      background: white;
+      margin-right: auto;
+    }
+
+    .enviado {
+      background: #dcf8c6;
+      margin-left: auto;
+    }
+
+    .entrada {
+      display: flex;
+      padding: 10px;
+      background: #f0f0f0;
+      gap: 8px;
+    }
+
+    .entrada input {
+      flex: 1;
+      padding: 13px;
+      border: none;
+      border-radius: 25px;
+      outline: none;
+      font-size: 16px;
+    }
+
+    .entrada button {
+      width: 50px;
+      height: 50px;
+      border: none;
+      border-radius: 50%;
+      background: #075e54;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="chat">
+
+    <div class="header">
+      Red Canbrelú Chat
+      <div class="subtitulo">Mensajería directa</div>
+    </div>
+
+    <div class="mensajes" id="mensajes">
+      <div class="mensaje recibido">
+        ¡Bienvenido a Red Canbrelú Chat! 👋
+      </div>
+    </div>
+
+    <div class="entrada">
+      <input
+        type="text"
+        id="mensaje"
+        placeholder="Escribí un mensaje..."
+        autocomplete="off"
+      >
+
+      <button onclick="enviarMensaje()">➤</button>
+    </div>
+
+  </div>
+
+  <script>
+    function enviarMensaje() {
+
+      const input = document.getElementById("mensaje");
+      const texto = input.value.trim();
+
+      if (texto === "") {
+        return;
+      }
+
+      const mensajes = document.getElementById("mensajes");
+
+      const nuevoMensaje = document.createElement("div");
+      nuevoMensaje.className = "mensaje enviado";
+      nuevoMensaje.textContent = texto;
+
+      mensajes.appendChild(nuevoMensaje);
+
+      input.value = "";
+
+      mensajes.scrollTop = mensajes.scrollHeight;
+    }
+
+    document.getElementById("mensaje").addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        enviarMensaje();
+      }
+    });
+  </script>
+
+</body>
+  </html>
