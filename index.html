@@ -294,19 +294,19 @@ onChildAdded(
   const mensaje = document.createElement("div");
   mensaje.classList.add("mensaje");
 
-  if (datos.usuarioId === usuarioId) {
-    mensaje.classList.add("enviado");
-  } else {
-    mensaje.classList.add("recibido");
-  }
+  if (datos.tipo === "cliente") {
+  mensaje.classList.add("enviado");
+} else {
+  mensaje.classList.add("recibido");
+}
 
-  if (datos.usuarioId !== usuarioId) {
-    const nombre = document.createElement("span");
-    nombre.classList.add("nombre");
-    nombre.textContent = datos.nombre || "Usuario";
+if (datos.tipo === "admin") {
+  const nombre = document.createElement("span");
+  nombre.classList.add("nombre");
+  nombre.textContent = "Administrador";
 
-    mensaje.appendChild(nombre);
-  }
+  mensaje.appendChild(nombre);
+}
 
   const texto = document.createElement("span");
   texto.classList.add("texto");
