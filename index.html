@@ -188,13 +188,14 @@
   import { initializeApp }
     from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 
-  import {
-    getDatabase,
-    ref,
-    push,
-    onChildAdded
-  } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
-
+ import {
+  getDatabase,
+  ref,
+  push,
+  set,
+  onChildAdded
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
+  
   const firebaseConfig = {
     apiKey: "AIzaSyCKh_AHfvDSlAMxs1Kl-hvQse6Dj1g6sBo",
     authDomain: "red-canbrelu-chat.firebaseapp.com",
@@ -257,13 +258,18 @@ function enviarMensaje() {
     alert("Primero escribí tu nombre y guardalo.");
     return;
   }
-
-  push(ref(db, "mensajes"), {
-    texto: texto,
-    fecha: Date.now(),
-    usuarioId: usuarioId,
-    nombre: nombreUsuario
-  });
+set(ref(db, "conversaciones/" + usuarioId + "/info"), {
+  nombre: nombreUsuario,
+  usuarioId: usuarioId,
+  ultimaActividad: Date.now()
+});
+ push(ref(db, "conversaciones/" + usuarioId + "/mensajes"), {
+  texto: texto,
+  fecha: Date.now(),
+  usuarioId: usuarioId,
+  nombre: nombreUsuario,
+  tipo: "cliente"
+});
 
   input.value = "";
   input.focus();
@@ -280,7 +286,9 @@ input.addEventListener("keydown", (event) => {
 });
 
 // Escuchar mensajes
-onChildAdded(ref(db, "mensajes"), (snapshot) => {
+onChildAdded(
+  ref(db, "conversaciones/" + usuarioId + "/mensajes"),
+  (snapshot) => {
   const datos = snapshot.val();
 
   const mensaje = document.createElement("div");
