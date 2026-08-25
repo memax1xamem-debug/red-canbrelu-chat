@@ -334,7 +334,7 @@ cerrarSesion.addEventListener("click", async () => {
   let cancelarMensajes = null;
 
   const mensajesVistos = {};
-  
+  const listenersNotificaciones = {};
   // ------------------------------------
   // LISTAR CLIENTES
   // ------------------------------------
@@ -386,36 +386,78 @@ cliente.appendChild(superior);
 cliente.appendChild(id);
       
       cliente.addEventListener("click", () => {
+       function actualizarNotificacion(usuarioId) {
+
+  document.querySelectorAll(".cliente").forEach(cliente => {
+
+    const id = cliente.querySelector(".cliente-id");
+
+    if (!id || id.textContent !== usuarioId) return;
+
+    const notificacion =
+      cliente.querySelector(".notificacion");
+
+    if (!notificacion) return;
+
+    const cantidad = mensajesVistos[usuarioId] || 0;
+
+    if (cantidad > 0) {
+      notificacion.textContent = cantidad;
+      notificacion.classList.remove("oculta");
+    } else {
+      notificacion.textContent = "0";
+      notificacion.classList.add("oculta");
+    }
+  });
+  }
         abrirConversacion(
           usuarioId,
           info.nombre || "Usuario"
         );
       });
-// Detectar mensajes nuevos de este cliente
-onChildAdded(
-  ref(db, "conversaciones/" + usuarioId + "/mensajes"),
-  (snapshot) => {
 
-    const datos = snapshot.val();
-
-    if (!datos || datos.tipo === "admin") return;
-
-    if (usuarioSeleccionado === usuarioId) return;
-
-    if (!mensajesVistos[usuarioId]) {
-      mensajesVistos[usuarioId] = 0;
-    }
-
-    mensajesVistos[usuarioId]++;
-
-    notificacion.textContent = mensajesVistos[usuarioId];
-    notificacion.classList.remove("oculta");
-  }
-);
       listaClientes.appendChild(cliente);
     });
   });
+if (!listenersNotificaciones[usuarioId]) {
 
+  let cargaInicial = true;
+
+  const referenciaMensajes = ref(
+    db,
+    "conversaciones/" + usuarioId + "/mensajes"
+  );
+
+  listenersNotificaciones[usuarioId] = onChildAdded(
+    referenciaMensajes,
+    (snapshot) => {
+
+      const datos = snapshot.val();
+
+      if (!datos || datos.tipo === "admin") return;
+
+      // Evitar contar mensajes antiguos al cargar la página
+      if (cargaInicial) return;
+
+      // Si ese chat está abierto, no mostrar notificación
+      if (usuarioSeleccionado === usuarioId) return;
+
+      if (!mensajesVistos[usuarioId]) {
+        mensajesVistos[usuarioId] = 0;
+      }
+
+      mensajesVistos[usuarioId]++;
+
+      actualizarNotificacion(usuarioId);
+    }
+  );
+
+  // Después de cargar los mensajes existentes,
+  // los siguientes sí se consideran nuevos.
+  setTimeout(() => {
+    cargaInicial = false;
+  }, 1000);
+}
 
   // ------------------------------------
   // ABRIR CONVERSACIÓN
@@ -428,19 +470,7 @@ onChildAdded(
     
 // Marcar los mensajes de este cliente como vistos
 mensajesVistos[usuarioId] = 0;
-
-document.querySelectorAll(".cliente").forEach(cliente => {
-  const id = cliente.querySelector(".cliente-id");
-
-  if (id && id.textContent === usuarioId) {
-    const notificacion = cliente.querySelector(".notificacion");
-
-    if (notificacion) {
-      notificacion.textContent = "0";
-      notificacion.classList.add("oculta");
-    }
-  }
-});
+actualizarNotificacion(usuarioId);
     tituloChat.textContent = nombre;
 
     input.disabled = false;
