@@ -286,14 +286,12 @@ onChildAdded(ref(db, "mensajes"), (snapshot) => {
   const mensaje = document.createElement("div");
   mensaje.classList.add("mensaje");
 
-  // Mis mensajes a la derecha
   if (datos.usuarioId === usuarioId) {
     mensaje.classList.add("enviado");
   } else {
     mensaje.classList.add("recibido");
   }
 
-  // Mostrar nombre solamente en mensajes recibidos
   if (datos.usuarioId !== usuarioId) {
     const nombre = document.createElement("span");
     nombre.classList.add("nombre");
@@ -327,7 +325,7 @@ onChildAdded(ref(db, "mensajes"), (snapshot) => {
   lista.scrollTop = lista.scrollHeight;
 });
 
-    lista.scrollTop = lista.scrollHeight;
-  });
-
 </script>
+
+</body>
+</html>
