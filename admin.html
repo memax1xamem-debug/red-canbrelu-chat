@@ -425,7 +425,21 @@ onChildAdded(
 
     usuarioSeleccionado = usuarioId;
     nombreSeleccionado = nombre;
+// Marcar los mensajes de este cliente como vistos
+mensajesVistos[usuarioId] = 0;
 
+document.querySelectorAll(".cliente").forEach(cliente => {
+  const id = cliente.querySelector(".cliente-id");
+
+  if (id && id.textContent === usuarioId) {
+    const notificacion = cliente.querySelector(".notificacion");
+
+    if (notificacion) {
+      notificacion.textContent = "0";
+      notificacion.classList.add("oculta");
+    }
+  }
+});
     tituloChat.textContent = nombre;
 
     input.disabled = false;
