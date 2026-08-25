@@ -248,30 +248,33 @@ if (nombreUsuario !== "") {
     localStorage.setItem("usuarioId", usuarioId);
   }
 
-  function enviarMensaje() {
-    const texto = input.value.trim();
+ window.enviarMensaje = function () {
+  const input = document.getElementById("mensaje");
+  const texto = input.value.trim();
 
-    if (texto === "") return;
+  if (texto === "") return;
 
-push(ref(db, "conversaciones/" + usuarioId + "/mensajes"), {
-  texto: texto,
-  fecha: Date.now(),
-  usuarioId: usuarioId,
-  nombre: nombreUsuario || "Usuario"
-});
-
-    input.value = "";
-    input.focus();
-  }
-
-  boton.addEventListener("click", enviarMensaje);
-
-  input.addEventListener("keydown", function(event) {
-    if (event.key === "Enter") {
-      enviarMensaje();
-    }
+  push(ref(db, "mensajes"), {
+    texto: texto,
+    fecha: Date.now()
   });
 
+  input.value = "";
+};
+
+onChildAdded(ref(db, "mensajes"), (snapshot) => {
+  const datos = snapshot.val();
+
+  const lista = document.getElementById("mensajes");
+
+  const mensaje = document.createElement("div");
+  mensaje.classList.add("mensaje", "recibido");
+  mensaje.textContent = datos.texto;
+
+  lista.appendChild(mensaje);
+
+  lista.scrollTop = lista.scrollHeight;
+});
 onChildAdded(
   ref(db, "conversaciones/" + usuarioId + "/mensajes"),
   (snapshot) => {
