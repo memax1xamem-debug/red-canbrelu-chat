@@ -29,16 +29,7 @@
       display: flex;
       flex-direction: column;
       box-shadow: 0 0 15px rgba(0,0,0,0.15);
-   
-      <div class="usuario">
-  <input
-    type="text"
-    id="nombreUsuario"
-    placeholder="Tu nombre..."
-    maxlength="25"
-  >
-  <button id="guardarNombre">Guardar</button>
-</div>}
+    }
 
     .header {
       background: #075e54;
@@ -122,12 +113,7 @@
       font-size: 20px;
       cursor: pointer;
     }
-
-    .entrada button:hover {
-      background: #064c44;
-    }
-  </style>
-  .usuario {
+.usuario {
   display: flex;
   gap: 8px;
   padding: 10px;
@@ -159,6 +145,10 @@
   color: #075e54;
   margin-bottom: 4px;
 }
+    .entrada button:hover {
+      background: #064c44;
+    }
+  </style>
 </head>
 
 <body>
@@ -169,7 +159,15 @@
     Red Canbrelú Chat
     <div class="subtitulo">Mensajería directa</div>
   </div>
-
+<div class="usuario">
+  <input
+    type="text"
+    id="nombreUsuario"
+    placeholder="Tu nombre..."
+    maxlength="25"
+  >
+  <button id="guardarNombre">Guardar</button>
+</div>
   <div class="mensajes" id="mensajes"></div>
 
   <div class="entrada">
@@ -277,7 +275,6 @@ push(ref(db, "conversaciones/" + usuarioId + "/mensajes"), {
 onChildAdded(
   ref(db, "conversaciones/" + usuarioId + "/mensajes"),
   (snapshot) => {
-
     const datos = snapshot.val();
 
     const mensaje = document.createElement("div");
