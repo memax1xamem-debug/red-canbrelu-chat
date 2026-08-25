@@ -12,7 +12,7 @@
       padding: 0;
       font-family: Arial, sans-serif;
     }
-
+<button id="cerrarSesion">Cerrar sesión</button>
     body {
       background: #f2f2f2;
       height: 100vh;
@@ -231,6 +231,11 @@
 
 <script type="module">
 
+  import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
   import { initializeApp }
     from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 
@@ -255,7 +260,13 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
+const auth = getAuth(app);
 
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    window.location.replace("login.html");
+  }
+});
   const listaClientes = document.getElementById("listaClientes");
   const listaMensajes = document.getElementById("mensajes");
   const tituloChat = document.getElementById("tituloChat");
@@ -298,7 +309,12 @@
       const nombre = document.createElement("div");
       nombre.classList.add("cliente-nombre");
       nombre.textContent = info.nombre || "Usuario";
+const cerrarSesion = document.getElementById("cerrarSesion");
 
+cerrarSesion.addEventListener("click", async () => {
+  await signOut(auth);
+  window.location.replace("login.html");
+});
       const id = document.createElement("div");
       id.classList.add("cliente-id");
       id.textContent = usuarioId;
