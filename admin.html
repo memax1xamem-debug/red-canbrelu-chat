@@ -376,8 +376,31 @@ cerrarSesion.addEventListener("click", async () => {
 
     input.focus();
 
-    listaMensajes.innerHTML = "";
+// Marcar visualmente el cliente seleccionado
+document.querySelectorAll(".cliente").forEach(cliente => {
+  cliente.classList.remove("activo");
+});
 
+const clientes = document.querySelectorAll(".cliente");
+
+clientes.forEach(cliente => {
+  const id = cliente.querySelector(".cliente-id");
+
+  if (id && id.textContent === usuarioId) {
+    cliente.classList.add("activo");
+  }
+});
+
+// En celular baja automáticamente hasta el chat
+if (window.innerWidth <= 700) {
+  document.querySelector(".chat").scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+}
+
+listaMensajes.innerHTML = "";
+    
     // Cancelar listener anterior
     if (cancelarMensajes) {
       cancelarMensajes();
