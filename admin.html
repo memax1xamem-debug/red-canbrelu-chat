@@ -379,10 +379,12 @@ superior.appendChild(nombre);
 superior.appendChild(notificacion);
 
 const id = document.createElement("div");
+id.classList.add("cliente-id");
+id.textContent = usuarioId;
 
-      cliente.appendChild(superior);
-      cliente.appendChild(id);
-
+cliente.appendChild(superior);
+cliente.appendChild(id);
+      
       cliente.addEventListener("click", () => {
         abrirConversacion(
           usuarioId,
