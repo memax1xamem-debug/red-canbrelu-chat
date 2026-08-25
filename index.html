@@ -248,73 +248,84 @@ if (nombreUsuario !== "") {
     localStorage.setItem("usuarioId", usuarioId);
   }
 
- window.enviarMensaje = function () {
-  const input = document.getElementById("mensaje");
+function enviarMensaje() {
   const texto = input.value.trim();
 
   if (texto === "") return;
 
+  if (nombreUsuario === "") {
+    alert("Primero escribí tu nombre y guardalo.");
+    return;
+  }
+
   push(ref(db, "mensajes"), {
     texto: texto,
-    fecha: Date.now()
+    fecha: Date.now(),
+    usuarioId: usuarioId,
+    nombre: nombreUsuario
   });
 
   input.value = "";
-};
+  input.focus();
+}
 
+// Botón enviar
+boton.addEventListener("click", enviarMensaje);
+
+// Enviar apretando Enter
+input.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    enviarMensaje();
+  }
+});
+
+// Escuchar mensajes
 onChildAdded(ref(db, "mensajes"), (snapshot) => {
   const datos = snapshot.val();
 
-  const lista = document.getElementById("mensajes");
-
   const mensaje = document.createElement("div");
-  mensaje.classList.add("mensaje", "recibido");
-  mensaje.textContent = datos.texto;
+  mensaje.classList.add("mensaje");
+
+  // Mis mensajes a la derecha
+  if (datos.usuarioId === usuarioId) {
+    mensaje.classList.add("enviado");
+  } else {
+    mensaje.classList.add("recibido");
+  }
+
+  // Mostrar nombre solamente en mensajes recibidos
+  if (datos.usuarioId !== usuarioId) {
+    const nombre = document.createElement("span");
+    nombre.classList.add("nombre");
+    nombre.textContent = datos.nombre || "Usuario";
+
+    mensaje.appendChild(nombre);
+  }
+
+  const texto = document.createElement("span");
+  texto.classList.add("texto");
+  texto.textContent = datos.texto || "";
+
+  mensaje.appendChild(texto);
+
+  const hora = document.createElement("span");
+  hora.classList.add("hora");
+
+  if (datos.fecha) {
+    const fecha = new Date(datos.fecha);
+
+    hora.textContent = fecha.toLocaleTimeString("es-AR", {
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  }
+
+  mensaje.appendChild(hora);
 
   lista.appendChild(mensaje);
 
   lista.scrollTop = lista.scrollHeight;
 });
-onChildAdded(
-  ref(db, "conversaciones/" + usuarioId + "/mensajes"),
-  (snapshot) => {
-    const datos = snapshot.val();
-
-    const mensaje = document.createElement("div");
-    mensaje.classList.add("mensaje");
-
-    // Si el mensaje pertenece a este navegador
-    if (datos.usuarioId === usuarioId) {
-      mensaje.classList.add("enviado");
-    } else {
-      mensaje.classList.add("recibido");
-    }
-
-    const texto = document.createElement("span");
-    texto.classList.add("texto");
-    texto.textContent = datos.texto;
-
-    const hora = document.createElement("span");
-    hora.classList.add("hora");
-
-    if (datos.fecha) {
-      const fecha = new Date(datos.fecha);
-
-      hora.textContent = fecha.toLocaleTimeString("es-AR", {
-        hour: "2-digit",
-        minute: "2-digit"
-      });
-    }
-if (datos.usuarioId !== usuarioId) {
-  const nombre = document.createElement("span");
-  nombre.classList.add("nombre");
-  nombre.textContent = datos.nombre || "Usuario";
-  mensaje.appendChild(nombre);
-}
-    mensaje.appendChild(texto);
-    mensaje.appendChild(hora);
-
-    lista.appendChild(mensaje);
 
     lista.scrollTop = lista.scrollHeight;
   });
