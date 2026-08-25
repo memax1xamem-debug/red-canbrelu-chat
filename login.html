@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Acceso administrador</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f2f2f2;
+    }
+
+    .login {
+      width: 90%;
+      max-width: 380px;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
+
+    h2 {
+      text-align: center;
+      color: #075e54;
+      margin-bottom: 25px;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 8px;
+      background: #075e54;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #064c44;
+    }
+
+    #error {
+      color: #c62828;
+      font-size: 13px;
+      margin-top: 15px;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="login">
+
+  <h2>Administrador</h2>
+
+  <input
+    type="email"
+    id="email"
+    placeholder="Correo electrónico"
+    autocomplete="email"
+  >
+
+  <input
+    type="password"
+    id="password"
+    placeholder="Contraseña"
+    autocomplete="current-password"
+  >
+
+  <button id="entrar">
+    Iniciar sesión
+  </button>
+
+  <div id="error"></div>
+
+</div>
+
+
+<script type="module">
+
+  import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+
+  import {
+    getAuth,
+    signInWithEmailAndPassword,
+    onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+
+  const firebaseConfig = {
+
+    apiKey: "TU_API_KEY",
+
+    authDomain: "TU_PROYECTO.firebaseapp.com",
+
+    databaseURL:
+      "https://TU_PROYECTO-default-rtdb.firebaseio.com/",
+
+    projectId: "TU_PROYECTO",
+
+    storageBucket:
+      "TU_PROYECTO.firebasestorage.app",
+
+    messagingSenderId:
+      "TU_MESSAGING_SENDER_ID",
+
+    appId:
+      "TU_APP_ID"
+
+  };
+
+
+  const app = initializeApp(firebaseConfig);
+
+  const auth = getAuth(app);
+
+
+  const email =
+    document.getElementById("email");
+
+  const password =
+    document.getElementById("password");
+
+  const boton =
+    document.getElementById("entrar");
+
+  const error =
+    document.getElementById("error");
+
+
+  boton.addEventListener("click", iniciarSesion);
+
+
+  password.addEventListener(
+    "keydown",
+    (event) => {
+
+      if (event.key === "Enter") {
+        iniciarSesion();
+      }
+
+    }
+  );
+
+
+  function iniciarSesion() {
+
+    error.textContent = "";
+
+    const correo =
+      email.value.trim();
+
+    const clave =
+      password.value;
+
+
+    if (correo === "" || clave === "") {
+
+      error.textContent =
+        "Completá el correo y la contraseña.";
+
+      return;
+    }
+
+
+    signInWithEmailAndPassword(
+      auth,
+      correo,
+      clave
+    )
+
+    .then(() => {
+
+      window.location.href =
+        "admin.html";
+
+    })
+
+    .catch(() => {
+
+      error.textContent =
+        "Correo o contraseña incorrectos.";
+
+    });
+
+  }
+
+
+  // Si ya está conectado,
+  // entrar directamente al administrador
+
+  onAuthStateChanged(
+    auth,
+    (user) => {
+
+      if (user) {
+
+        window.location.href =
+          "admin.html";
+
+      }
+
+    }
+  );
+
+</script>
+
+</body>
+</html>
