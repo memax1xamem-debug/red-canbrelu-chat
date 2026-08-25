@@ -364,15 +364,23 @@ cerrarSesion.addEventListener("click", async () => {
         cliente.classList.add("activo");
       }
 
-      const nombre = document.createElement("div");
-      nombre.classList.add("cliente-nombre");
-      nombre.textContent = info.nombre || "Usuario";
+     const superior = document.createElement("div");
+superior.classList.add("cliente-superior");
 
-      const id = document.createElement("div");
-      id.classList.add("cliente-id");
-      id.textContent = usuarioId;
+const nombre = document.createElement("div");
+nombre.classList.add("cliente-nombre");
+nombre.textContent = info.nombre || "Usuario";
 
-      cliente.appendChild(nombre);
+const notificacion = document.createElement("div");
+notificacion.classList.add("notificacion", "oculta");
+notificacion.textContent = "0";
+
+superior.appendChild(nombre);
+superior.appendChild(notificacion);
+
+const id = document.createElement("div");
+
+      cliente.appendChild(superior);
       cliente.appendChild(id);
 
       cliente.addEventListener("click", () => {
