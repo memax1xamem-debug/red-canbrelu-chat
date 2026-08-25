@@ -12,7 +12,7 @@
       padding: 0;
       font-family: Arial, sans-serif;
     }
-<button id="cerrarSesion">Cerrar sesión</button>
+
     body {
       background: #f2f2f2;
       height: 100vh;
@@ -203,9 +203,10 @@
 
   <div class="chat">
 
-    <div class="header" id="tituloChat">
-      Seleccioná un cliente
-    </div>
+ <div class="header">
+  <span id="tituloChat">Seleccioná un cliente</span>
+  <button id="cerrarSesion">Cerrar sesión</button>
+</div>
 
     <div class="mensajes" id="mensajes">
       <div class="sin-chat">
@@ -272,7 +273,13 @@ onAuthStateChanged(auth, (user) => {
   const tituloChat = document.getElementById("tituloChat");
   const input = document.getElementById("mensaje");
   const botonEnviar = document.getElementById("botonEnviar");
+const cerrarSesion = document.getElementById("cerrarSesion");
 
+cerrarSesion.addEventListener("click", async () => {
+  await signOut(auth);
+  window.location.replace("login.html");
+});
+  
   let usuarioSeleccionado = null;
   let nombreSeleccionado = "";
   let cancelarMensajes = null;
@@ -309,12 +316,7 @@ onAuthStateChanged(auth, (user) => {
       const nombre = document.createElement("div");
       nombre.classList.add("cliente-nombre");
       nombre.textContent = info.nombre || "Usuario";
-const cerrarSesion = document.getElementById("cerrarSesion");
 
-cerrarSesion.addEventListener("click", async () => {
-  await signOut(auth);
-  window.location.replace("login.html");
-});
       const id = document.createElement("div");
       id.classList.add("cliente-id");
       id.textContent = usuarioId;
