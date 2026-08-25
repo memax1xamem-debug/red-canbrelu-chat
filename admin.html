@@ -391,7 +391,27 @@ cliente.appendChild(id);
           info.nombre || "Usuario"
         );
       });
+// Detectar mensajes nuevos de este cliente
+onChildAdded(
+  ref(db, "conversaciones/" + usuarioId + "/mensajes"),
+  (snapshot) => {
 
+    const datos = snapshot.val();
+
+    if (!datos || datos.tipo === "admin") return;
+
+    if (usuarioSeleccionado === usuarioId) return;
+
+    if (!mensajesVistos[usuarioId]) {
+      mensajesVistos[usuarioId] = 0;
+    }
+
+    mensajesVistos[usuarioId]++;
+
+    notificacion.textContent = mensajesVistos[usuarioId];
+    notificacion.classList.remove("oculta");
+  }
+);
       listaClientes.appendChild(cliente);
     });
   });
