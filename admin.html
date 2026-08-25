@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Red Canbrelú - Admin</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #f2f2f2;
+      height: 100vh;
+    }
+
+    .admin {
+      max-width: 900px;
+      height: 100vh;
+      margin: auto;
+      display: flex;
+      background: white;
+      box-shadow: 0 0 15px rgba(0,0,0,0.15);
+    }
+
+    .clientes {
+      width: 300px;
+      border-right: 1px solid #ddd;
+      overflow-y: auto;
+      background: #ffffff;
+    }
+
+    .titulo-clientes {
+      background: #075e54;
+      color: white;
+      padding: 18px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .cliente {
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+    }
+
+    .cliente:hover {
+      background: #f5f5f5;
+    }
+
+    .cliente.activo {
+      background: #dcf8c6;
+    }
+
+    .cliente-nombre {
+      font-weight: bold;
+      color: #222;
+    }
+
+    .cliente-id {
+      font-size: 11px;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    .chat {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .header {
+      background: #075e54;
+      color: white;
+      padding: 18px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .mensajes {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+      background: #e5ddd5;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sin-chat {
+      margin: auto;
+      color: #777;
+      text-align: center;
+    }
+
+    .mensaje {
+      max-width: 80%;
+      padding: 9px 12px;
+      margin-bottom: 8px;
+      border-radius: 12px;
+      font-size: 15px;
+      word-wrap: break-word;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    }
+
+    .cliente-msg {
+      background: white;
+      margin-right: auto;
+    }
+
+    .admin-msg {
+      background: #dcf8c6;
+      margin-left: auto;
+    }
+
+    .nombre {
+      display: block;
+      font-size: 12px;
+      font-weight: bold;
+      color: #075e54;
+      margin-bottom: 4px;
+    }
+
+    .hora {
+      display: block;
+      font-size: 10px;
+      color: #777;
+      text-align: right;
+      margin-top: 5px;
+    }
+
+    .entrada {
+      display: flex;
+      padding: 10px;
+      gap: 8px;
+      background: #f0f0f0;
+    }
+
+    .entrada input {
+      flex: 1;
+      padding: 13px;
+      border: none;
+      border-radius: 25px;
+      outline: none;
+      font-size: 16px;
+    }
+
+    .entrada button {
+      width: 50px;
+      height: 50px;
+      border: none;
+      border-radius: 50%;
+      background: #075e54;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .entrada button:hover {
+      background: #064c44;
+    }
+
+    .entrada input:disabled,
+    .entrada button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 700px) {
+      .admin {
+        flex-direction: column;
+      }
+
+      .clientes {
+        width: 100%;
+        height: 220px;
+        border-right: none;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .chat {
+        flex: 1;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="admin">
+
+  <div class="clientes">
+    <div class="titulo-clientes">
+      Clientes
+    </div>
+
+    <div id="listaClientes"></div>
+  </div>
+
+  <div class="chat">
+
+    <div class="header" id="tituloChat">
+      Seleccioná un cliente
+    </div>
+
+    <div class="mensajes" id="mensajes">
+      <div class="sin-chat">
+        Elegí un cliente de la lista para abrir la conversación.
+      </div>
+    </div>
+
+    <div class="entrada">
+      <input
+        type="text"
+        id="mensaje"
+        placeholder="Escribí una respuesta..."
+        autocomplete="off"
+        disabled
+      >
+
+      <button id="botonEnviar" disabled>➤</button>
+    </div>
+
+  </div>
+
+</div>
+
+<script type="module">
+
+  import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+
+  import {
+    getDatabase,
+    ref,
+    push,
+    onValue,
+    onChildAdded
+  } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCKh_AHfvDSlAMxs1Kl-hvQse6Dj1g6sBo",
+    authDomain: "red-canbrelu-chat.firebaseapp.com",
+    databaseURL: "https://red-canbrelu-chat-default-rtdb.firebaseio.com/",
+    projectId: "red-canbrelu-chat",
+    storageBucket: "red-canbrelu-chat.firebasestorage.app",
+    messagingSenderId: "733334279827",
+    appId: "1:733334279827:web:7fdec02211ae5818ae9f66",
+    measurementId: "G-ZXGC8CCYK3"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  const listaClientes = document.getElementById("listaClientes");
+  const listaMensajes = document.getElementById("mensajes");
+  const tituloChat = document.getElementById("tituloChat");
+  const input = document.getElementById("mensaje");
+  const botonEnviar = document.getElementById("botonEnviar");
+
+  let usuarioSeleccionado = null;
+  let nombreSeleccionado = "";
+  let cancelarMensajes = null;
+
+  // ------------------------------------
+  // LISTAR CLIENTES
+  // ------------------------------------
+
+  onValue(ref(db, "conversaciones"), (snapshot) => {
+
+    listaClientes.innerHTML = "";
+
+    const conversaciones = snapshot.val();
+
+    if (!conversaciones) {
+      listaClientes.innerHTML =
+        '<div style="padding:15px;color:#777;">Todavía no hay clientes.</div>';
+      return;
+    }
+
+    Object.entries(conversaciones).forEach(([usuarioId, conversacion]) => {
+
+      if (!conversacion.info) return;
+
+      const info = conversacion.info;
+
+      const cliente = document.createElement("div");
+      cliente.classList.add("cliente");
+
+      if (usuarioId === usuarioSeleccionado) {
+        cliente.classList.add("activo");
+      }
+
+      const nombre = document.createElement("div");
+      nombre.classList.add("cliente-nombre");
+      nombre.textContent = info.nombre || "Usuario";
+
+      const id = document.createElement("div");
+      id.classList.add("cliente-id");
+      id.textContent = usuarioId;
+
+      cliente.appendChild(nombre);
+      cliente.appendChild(id);
+
+      cliente.addEventListener("click", () => {
+        abrirConversacion(
+          usuarioId,
+          info.nombre || "Usuario"
+        );
+      });
+
+      listaClientes.appendChild(cliente);
+    });
+  });
+
+
+  // ------------------------------------
+  // ABRIR CONVERSACIÓN
+  // ------------------------------------
+
+  function abrirConversacion(usuarioId, nombre) {
+
+    usuarioSeleccionado = usuarioId;
+    nombreSeleccionado = nombre;
+
+    tituloChat.textContent = nombre;
+
+    input.disabled = false;
+    botonEnviar.disabled = false;
+
+    input.focus();
+
+    listaMensajes.innerHTML = "";
+
+    // Cancelar listener anterior
+    if (cancelarMensajes) {
+      cancelarMensajes();
+    }
+
+    cancelarMensajes = onChildAdded(
+      ref(db, "conversaciones/" + usuarioId + "/mensajes"),
+      (snapshot) => {
+
+        const datos = snapshot.val();
+
+        mostrarMensaje(datos);
+      }
+    );
+  }
+
+
+  // ------------------------------------
+  // MOSTRAR MENSAJE
+  // ------------------------------------
+
+  function mostrarMensaje(datos) {
+
+    const mensaje = document.createElement("div");
+    mensaje.classList.add("mensaje");
+
+    if (datos.tipo === "admin") {
+      mensaje.classList.add("admin-msg");
+    } else {
+      mensaje.classList.add("cliente-msg");
+    }
+
+    const nombre = document.createElement("span");
+    nombre.classList.add("nombre");
+
+    if (datos.tipo === "admin") {
+      nombre.textContent = "Administrador";
+    } else {
+      nombre.textContent = datos.nombre || nombreSeleccionado;
+    }
+
+    const texto = document.createElement("span");
+    texto.textContent = datos.texto || "";
+
+    const hora = document.createElement("span");
+    hora.classList.add("hora");
+
+    if (datos.fecha) {
+      const fecha = new Date(datos.fecha);
+
+      hora.textContent = fecha.toLocaleTimeString("es-AR", {
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    mensaje.appendChild(nombre);
+    mensaje.appendChild(texto);
+    mensaje.appendChild(hora);
+
+    listaMensajes.appendChild(mensaje);
+
+    listaMensajes.scrollTop = listaMensajes.scrollHeight;
+  }
+
+
+  // ------------------------------------
+  // ENVIAR RESPUESTA
+  // ------------------------------------
+
+  function enviarMensaje() {
+
+    if (!usuarioSeleccionado) return;
+
+    const texto = input.value.trim();
+
+    if (texto === "") return;
+
+    push(
+      ref(
+        db,
+        "conversaciones/" +
+        usuarioSeleccionado +
+        "/mensajes"
+      ),
+      {
+        texto: texto,
+        fecha: Date.now(),
+        nombre: "Administrador",
+        tipo: "admin"
+      }
+    );
+
+    input.value = "";
+    input.focus();
+  }
+
+
+  // Botón enviar
+  botonEnviar.addEventListener("click", enviarMensaje);
+
+
+  // Enviar con Enter
+  input.addEventListener("keydown", (event) => {
+
+    if (event.key === "Enter") {
+      enviarMensaje();
+    }
+
+  });
+
+</script>
+
+</body>
+</html>
