@@ -373,7 +373,19 @@ const mensajesVistos = {};
 const listenersNotificaciones = {};
   
 let totalNoLeidos = 0;
+function reproducirSonidoNotificacion() {
 
+  const audio = new Audio(
+    "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"
+  );
+
+  audio.volume = 0.5;
+
+  audio.play().catch(() => {
+    console.log("El navegador bloqueó el sonido automático.");
+  });
+
+}
 // ========================================
 // CERRAR SESIÓN
 // ========================================
@@ -520,7 +532,8 @@ totalNoLeidos++;
 actualizarNotificacion(usuarioId);
 
 actualizarTituloPagina();
-
+        
+reproducirSonidoNotificacion();
       }
     );
 
