@@ -374,7 +374,50 @@ const listenersNotificaciones = {};
   
 let totalNoLeidos = 0;
 function reproducirSonidoNotificacion() {
+function pedirPermisoNotificaciones() {
 
+  if (!("Notification" in window)) {
+    console.log("Este navegador no admite notificaciones.");
+    return;
+  }
+
+  if (Notification.permission === "default") {
+
+    Notification.requestPermission().then((permiso) => {
+
+      console.log(
+        "Permiso de notificaciones:",
+        permiso
+      );
+
+    });
+
+  }
+
+}
+document.addEventListener(
+  "click",
+  pedirPermisoNotificaciones,
+  { once: true }
+);
+  function mostrarNotificacionNavegador(nombre, texto) {
+
+  if (
+    !("Notification" in window) ||
+    Notification.permission !== "granted"
+  ) {
+    return;
+  }
+
+  new Notification(
+    "Nuevo mensaje de " + nombre,
+    {
+      body: texto,
+      icon: "https://www.google.com/favicon.ico"
+    }
+  );
+
+}
   const audio = new Audio(
     "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"
   );
@@ -534,6 +577,11 @@ actualizarNotificacion(usuarioId);
 actualizarTituloPagina();
         
 reproducirSonidoNotificacion();
+  
+mostrarNotificacionNavegador(
+  datos.nombre || "Cliente",
+  datos.texto || "Nuevo mensaje"
+);
       }
     );
 
