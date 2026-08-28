@@ -374,6 +374,20 @@ const listenersNotificaciones = {};
   
 let totalNoLeidos = 0;
 function reproducirSonidoNotificacion() {
+
+  const audio = new Audio(
+    "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"
+  );
+
+  audio.volume = 0.5;
+
+  audio.play().catch(() => {
+    console.log("El navegador bloqueó el sonido automático.");
+  });
+
+}
+
+
 function pedirPermisoNotificaciones() {
 
   if (!("Notification" in window)) {
@@ -395,12 +409,16 @@ function pedirPermisoNotificaciones() {
   }
 
 }
+
+
 document.addEventListener(
   "click",
   pedirPermisoNotificaciones,
   { once: true }
 );
-  function mostrarNotificacionNavegador(nombre, texto) {
+
+
+function mostrarNotificacionNavegador(nombre, texto) {
 
   if (
     !("Notification" in window) ||
@@ -412,21 +430,11 @@ document.addEventListener(
   new Notification(
     "Nuevo mensaje de " + nombre,
     {
-      body: texto,
-      icon: "https://www.google.com/favicon.ico"
+      body: texto
     }
   );
 
 }
-  const audio = new Audio(
-    "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"
-  );
-
-  audio.volume = 0.5;
-
-  audio.play().catch(() => {
-    console.log("El navegador bloqueó el sonido automático.");
-  });
 
 }
 // ========================================
