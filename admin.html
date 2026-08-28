@@ -409,14 +409,8 @@ function actualizarNotificacion(usuarioId) {
 
       if (!notificacion) return;
 
-      const cantidad =
-        mensajesVistos[usuarioId]++;
-
-totalNoLeidos++;
-
-actualizarNotificacion(usuarioId);
-
-actualizarTituloPagina();
+    const cantidad =
+  mensajesVistos[usuarioId] || 0;
 
       if (cantidad > 0) {
 
@@ -519,9 +513,13 @@ function activarNotificaciones(usuarioId) {
           mensajesVistos[usuarioId] = 0;
         }
 
-        mensajesVistos[usuarioId]++;
+       mensajesVistos[usuarioId]++;
 
-        actualizarNotificacion(usuarioId);
+totalNoLeidos++;
+
+actualizarNotificacion(usuarioId);
+
+actualizarTituloPagina();
 
       }
     );
@@ -687,10 +685,20 @@ function abrirConversacion(
 
   // Borrar notificaciones pendientes
 
-  mensajesVistos[usuarioId] = 0;
+ const pendientes =
+  mensajesVistos[usuarioId] || 0;
 
-  actualizarNotificacion(usuarioId);
+totalNoLeidos -= pendientes;
 
+if (totalNoLeidos < 0) {
+  totalNoLeidos = 0;
+}
+
+mensajesVistos[usuarioId] = 0;
+
+actualizarNotificacion(usuarioId);
+
+actualizarTituloPagina();
 
   // Título
 
