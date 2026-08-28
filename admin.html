@@ -538,34 +538,567 @@ listaMensajes.innerHTML = "";
     const nombre = document.createElement("span");
     nombre.classList.add("nombre");
 
-    if (datos.tipo === "admin") {
-      nombre.textContent = "Administrador";
-    } else {
-      nombre.textContent = datos.nombre || nombreSeleccionado;
+<script type="module">
+
+  import {
+    getAuth,
+    onAuthStateChanged,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+  import {
+    initializeApp
+  } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+
+  import {
+    getDatabase,
+    ref,
+    push,
+    onValue,
+    onChildAdded
+  } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
+
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCKh_AHfvDSlAMxs1Kl-hvQse6Dj1g6sBo",
+    authDomain: "red-canbrelu-chat.firebaseapp.com",
+    databaseURL: "https://red-canbrelu-chat-default-rtdb.firebaseio.com/",
+    projectId: "red-canbrelu-chat",
+    storageBucket: "red-canbrelu-chat.firebasestorage.app",
+    messagingSenderId: "733334279827",
+    appId: "1:733334279827:web:7fdec02211ae5818ae9f66",
+    measurementId: "G-ZXGC8CCYK3"
+  };
+
+
+  // ------------------------------------
+  // FIREBASE
+  // ------------------------------------
+
+  const app = initializeApp(firebaseConfig);
+
+  const db = getDatabase(app);
+  const auth = getAuth(app);
+
+
+  // ------------------------------------
+  // PROTEGER PANEL ADMIN
+  // ------------------------------------
+
+  onAuthStateChanged(auth, (user) => {
+
+    if (!user) {
+      window.location.replace("login.html");
     }
 
-    const texto = document.createElement("span");
-    texto.textContent = datos.texto || "";
+  });
 
-    const hora = document.createElement("span");
+
+  // ------------------------------------
+  // ELEMENTOS HTML
+  // ------------------------------------
+
+  const listaClientes =
+    document.getElementById("listaClientes");
+
+  const listaMensajes =
+    document.getElementById("mensajes");
+
+  const tituloChat =
+    document.getElementById("tituloChat");
+
+  const input =
+    document.getElementById("mensaje");
+
+  const botonEnviar =
+    document.getElementById("botonEnviar");
+
+  const cerrarSesion =
+    document.getElementById("cerrarSesion");
+
+
+  // ------------------------------------
+  // VARIABLES
+  // ------------------------------------
+
+  let usuarioSeleccionado = null;
+
+  let nombreSeleccionado = "";
+
+  let cancelarMensajes = null;
+
+  const mensajesVistos = {};
+
+  const listenersNotificaciones = {};
+
+
+  // ------------------------------------
+  // CERRAR SESIÓN
+  // ------------------------------------
+
+  cerrarSesion.addEventListener("click", async () => {
+
+    await signOut(auth);
+
+    window.location.replace("login.html");
+
+  });
+
+
+  // ------------------------------------
+  // ACTUALIZAR NOTIFICACIÓN
+  // ------------------------------------
+
+  function actualizarNotificacion(usuarioId) {
+
+    document.querySelectorAll(".cliente").forEach(cliente => {
+
+      const id =
+        cliente.querySelector(".cliente-id");
+
+      if (!id || id.textContent !== usuarioId) {
+        return;
+      }
+
+      const notificacion =
+        cliente.querySelector(".notificacion");
+
+      if (!notificacion) return;
+
+      const cantidad =
+        mensajesVistos[usuarioId] || 0;
+
+      if (cantidad > 0) {
+
+        notificacion.textContent = cantidad;
+
+        notificacion.classList.remove("oculta");
+
+      } else {
+
+        notificacion.textContent = "0";
+
+        notificacion.classList.add("oculta");
+
+      }
+
+    });
+
+  }
+
+
+  // ------------------------------------
+  // ESCUCHAR MENSAJES NUEVOS
+  // ------------------------------------
+
+  function activarNotificaciones(usuarioId) {
+
+    if (listenersNotificaciones[usuarioId]) {
+      return;
+    }
+
+    const referenciaMensajes = ref(
+      db,
+      "conversaciones/" +
+      usuarioId +
+      "/mensajes"
+    );
+
+    let cargaInicial = true;
+
+
+    listenersNotificaciones[usuarioId] =
+      onChildAdded(
+        referenciaMensajes,
+        (snapshot) => {
+
+          const datos = snapshot.val();
+
+          if (!datos) return;
+
+          // No contar mensajes enviados por admin
+          if (datos.tipo === "admin") return;
+
+          // No contar mensajes viejos al cargar
+          if (cargaInicial) return;
+
+          // Si estamos mirando ese chat,
+          // no mostrar notificación
+          if (usuarioSeleccionado === usuarioId) {
+            return;
+          }
+
+          if (!mensajesVistos[usuarioId]) {
+            mensajesVistos[usuarioId] = 0;
+          }
+
+          mensajesVistos[usuarioId]++;
+
+          actualizarNotificacion(usuarioId);
+
+        }
+      );
+
+
+    // Luego de cargar mensajes antiguos,
+    // los próximos se consideran nuevos
+    setTimeout(() => {
+
+      cargaInicial = false;
+
+    }, 1200);
+
+  }
+
+
+  // ------------------------------------
+  // LISTAR CLIENTES
+  // ------------------------------------
+
+  onValue(
+    ref(db, "conversaciones"),
+    (snapshot) => {
+
+      listaClientes.innerHTML = "";
+
+      const conversaciones = snapshot.val();
+
+
+      if (!conversaciones) {
+
+        listaClientes.innerHTML =
+          '<div style="padding:15px;color:#777;">Todavía no hay clientes.</div>';
+
+        return;
+
+      }
+
+
+      Object.entries(conversaciones).forEach(
+        ([usuarioId, conversacion]) => {
+
+          if (!conversacion.info) return;
+
+          const info = conversacion.info;
+
+
+          // -----------------------------
+          // CONTENEDOR CLIENTE
+          // -----------------------------
+
+          const cliente =
+            document.createElement("div");
+
+          cliente.classList.add("cliente");
+
+
+          if (usuarioId === usuarioSeleccionado) {
+
+            cliente.classList.add("activo");
+
+          }
+
+
+          // -----------------------------
+          // PARTE SUPERIOR
+          // -----------------------------
+
+          const superior =
+            document.createElement("div");
+
+          superior.classList.add("cliente-superior");
+
+
+          const nombre =
+            document.createElement("div");
+
+          nombre.classList.add("cliente-nombre");
+
+          nombre.textContent =
+            info.nombre || "Usuario";
+
+
+          const notificacion =
+            document.createElement("div");
+
+          notificacion.classList.add(
+            "notificacion",
+            "oculta"
+          );
+
+
+          const cantidad =
+            mensajesVistos[usuarioId] || 0;
+
+
+          if (cantidad > 0) {
+
+            notificacion.textContent = cantidad;
+
+            notificacion.classList.remove("oculta");
+
+          } else {
+
+            notificacion.textContent = "0";
+
+          }
+
+
+          superior.appendChild(nombre);
+
+          superior.appendChild(notificacion);
+
+
+          // -----------------------------
+          // ID DEL CLIENTE
+          // -----------------------------
+
+          const id =
+            document.createElement("div");
+
+          id.classList.add("cliente-id");
+
+          id.textContent = usuarioId;
+
+
+          cliente.appendChild(superior);
+
+          cliente.appendChild(id);
+
+
+          // -----------------------------
+          // ABRIR CHAT
+          // -----------------------------
+
+          cliente.addEventListener(
+            "click",
+            () => {
+
+              abrirConversacion(
+                usuarioId,
+                info.nombre || "Usuario"
+              );
+
+            }
+          );
+
+
+          listaClientes.appendChild(cliente);
+
+
+          // Activar listener individual
+          // para mensajes nuevos
+          activarNotificaciones(usuarioId);
+
+        }
+      );
+
+    }
+  );
+
+
+  // ------------------------------------
+  // ABRIR CONVERSACIÓN
+  // ------------------------------------
+
+  function abrirConversacion(usuarioId, nombre) {
+
+    usuarioSeleccionado = usuarioId;
+
+    nombreSeleccionado = nombre;
+
+
+    // Marcar mensajes como vistos
+    mensajesVistos[usuarioId] = 0;
+
+    actualizarNotificacion(usuarioId);
+
+
+    tituloChat.textContent = nombre;
+
+
+    input.disabled = false;
+
+    botonEnviar.disabled = false;
+
+    input.focus();
+
+
+    // ----------------------------------
+    // MARCAR CLIENTE ACTIVO
+    // ----------------------------------
+
+    document
+      .querySelectorAll(".cliente")
+      .forEach(cliente => {
+
+        cliente.classList.remove("activo");
+
+      });
+
+
+    document
+      .querySelectorAll(".cliente")
+      .forEach(cliente => {
+
+        const id =
+          cliente.querySelector(".cliente-id");
+
+        if (
+          id &&
+          id.textContent === usuarioId
+        ) {
+
+          cliente.classList.add("activo");
+
+        }
+
+      });
+
+
+    // ----------------------------------
+    // CELULAR
+    // ----------------------------------
+
+    if (window.innerWidth <= 700) {
+
+      document
+        .querySelector(".chat")
+        .scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+
+    }
+
+
+    // Limpiar mensajes anteriores
+    listaMensajes.innerHTML = "";
+
+
+    // Cancelar listener del chat anterior
+    if (cancelarMensajes) {
+
+      cancelarMensajes();
+
+    }
+
+
+    // ----------------------------------
+    // CARGAR MENSAJES
+    // ----------------------------------
+
+    cancelarMensajes =
+      onChildAdded(
+        ref(
+          db,
+          "conversaciones/" +
+          usuarioId +
+          "/mensajes"
+        ),
+        (snapshot) => {
+
+          const datos = snapshot.val();
+
+          if (!datos) return;
+
+          mostrarMensaje(datos);
+
+        }
+      );
+
+  }
+
+
+  // ------------------------------------
+  // MOSTRAR MENSAJE
+  // ------------------------------------
+
+  function mostrarMensaje(datos) {
+
+    const mensaje =
+      document.createElement("div");
+
+    mensaje.classList.add("mensaje");
+
+
+    if (datos.tipo === "admin") {
+
+      mensaje.classList.add("admin-msg");
+
+    } else {
+
+      mensaje.classList.add("cliente-msg");
+
+    }
+
+
+    // Nombre
+    const nombre =
+      document.createElement("span");
+
+    nombre.classList.add("nombre");
+
+
+    if (datos.tipo === "admin") {
+
+      nombre.textContent = "Administrador";
+
+    } else {
+
+      nombre.textContent =
+        datos.nombre ||
+        nombreSeleccionado;
+
+    }
+
+
+    // Texto
+    const texto =
+      document.createElement("span");
+
+    texto.textContent =
+      datos.texto || "";
+
+
+    // Hora
+    const hora =
+      document.createElement("span");
+
     hora.classList.add("hora");
 
-    if (datos.fecha) {
-      const fecha = new Date(datos.fecha);
 
-      hora.textContent = fecha.toLocaleTimeString("es-AR", {
-        hour: "2-digit",
-        minute: "2-digit"
-      });
+    if (datos.fecha) {
+
+      const fecha =
+        new Date(datos.fecha);
+
+      hora.textContent =
+        fecha.toLocaleTimeString(
+          "es-AR",
+          {
+            hour: "2-digit",
+            minute: "2-digit"
+          }
+        );
+
     }
 
+
     mensaje.appendChild(nombre);
+
     mensaje.appendChild(texto);
+
     mensaje.appendChild(hora);
+
 
     listaMensajes.appendChild(mensaje);
 
-    listaMensajes.scrollTop = listaMensajes.scrollHeight;
+
+    // Bajar al último mensaje
+    listaMensajes.scrollTop =
+      listaMensajes.scrollHeight;
+
   }
 
 
@@ -577,9 +1110,13 @@ listaMensajes.innerHTML = "";
 
     if (!usuarioSeleccionado) return;
 
-    const texto = input.value.trim();
+
+    const texto =
+      input.value.trim();
+
 
     if (texto === "") return;
+
 
     push(
       ref(
@@ -596,25 +1133,41 @@ listaMensajes.innerHTML = "";
       }
     );
 
+
     input.value = "";
+
     input.focus();
+
   }
 
 
-  // Botón enviar
-  botonEnviar.addEventListener("click", enviarMensaje);
+  // ------------------------------------
+  // BOTÓN ENVIAR
+  // ------------------------------------
+
+  botonEnviar.addEventListener(
+    "click",
+    enviarMensaje
+  );
 
 
-  // Enviar con Enter
-  input.addEventListener("keydown", (event) => {
+  // ------------------------------------
+  // ENVIAR CON ENTER
+  // ------------------------------------
 
-    if (event.key === "Enter") {
-      enviarMensaje();
+  input.addEventListener(
+    "keydown",
+    (event) => {
+
+      if (event.key === "Enter") {
+
+        event.preventDefault();
+
+        enviarMensaje();
+
+      }
+
     }
-
-  });
+  );
 
 </script>
-
-</body>
-</html>
