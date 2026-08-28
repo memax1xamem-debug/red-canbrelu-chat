@@ -435,6 +435,7 @@ function actualizarNotificacion(usuarioId) {
 // ========================================
 
 function activarNotificaciones(usuarioId) {
+function activarNotificaciones(usuarioId) {
 
   if (listenersNotificaciones[usuarioId]) {
     return;
@@ -447,7 +448,25 @@ function activarNotificaciones(usuarioId) {
     "/mensajes"
   );
 
-  let cargaInicial = true;
+  let mensajesIniciales = new Set();
+  let cargaInicialTerminada = false;
+
+  onValue(
+    referenciaMensajes,
+    (snapshot) => {
+
+      snapshot.forEach((mensajeSnapshot) => {
+        mensajesIniciales.add(mensajeSnapshot.key);
+      });
+
+      cargaInicialTerminada = true;
+
+    },
+    {
+      onlyOnce: true
+    }
+  );
+
 
   listenersNotificaciones[usuarioId] =
     onChildAdded(
@@ -458,18 +477,21 @@ function activarNotificaciones(usuarioId) {
 
         if (!datos) return;
 
-        // No contar respuestas del administrador
+        // Ignorar mensajes viejos
+        if (
+          !cargaInicialTerminada ||
+          mensajesIniciales.has(snapshot.key)
+        ) {
+          return;
+        }
+
+        // Ignorar respuestas del administrador
         if (datos.tipo === "admin") {
           return;
         }
 
-        // No contar mensajes anteriores
-        if (cargaInicial) {
-          return;
-        }
-
-        // Si estamos viendo ese cliente,
-        // no hace falta mostrar notificación
+        // Si estamos viendo ese chat,
+        // no mostrar notificación
         if (usuarioSeleccionado === usuarioId) {
           return;
         }
@@ -484,10 +506,6 @@ function activarNotificaciones(usuarioId) {
 
       }
     );
-
-  setTimeout(() => {
-    cargaInicial = false;
-  }, 1200);
 
 }
 
