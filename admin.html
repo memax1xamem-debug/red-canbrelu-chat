@@ -295,6 +295,7 @@ import {
   getDatabase,
   ref,
   push,
+  set,
   onValue,
   onChildAdded
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
@@ -568,6 +569,18 @@ function activarNotificaciones(usuarioId) {
         const datos = snapshot.val();
 
         if (!datos) return;
+        
+        if (datos.fecha) {
+  set(
+    ref(
+      db,
+      "conversaciones/" +
+      usuarioId +
+      "/ultimoMensaje"
+    ),
+    datos.fecha
+  );
+}
 
         // Ignorar mensajes viejos
         if (
@@ -599,6 +612,16 @@ totalNoLeidos++;
 actualizarNotificacion(usuarioId);
 
 actualizarTituloPagina();
+
+        const clienteNuevo = [...document.querySelectorAll(".cliente")]
+  .find(cliente => {
+    const id = cliente.querySelector(".cliente-id");
+    return id && id.textContent === usuarioId;
+  });
+
+if (clienteNuevo) {
+  listaClientes.prepend(clienteNuevo);
+}
         
 reproducirSonidoNotificacion();
   
@@ -635,8 +658,19 @@ onValue(
 
     }
 
-    Object.entries(conversaciones).forEach(
-      ([usuarioId, conversacion]) => {
+    Object.entries(conversaciones)
+  .sort((a, b) => {
+
+    const fechaA =
+      a[1].ultimoMensaje || 0;
+
+    const fechaB =
+      b[1].ultimoMensaje || 0;
+
+    return fechaB - fechaA;
+  })
+  .forEach(
+    ([usuarioId, conversacion]) => {
 
         if (!conversacion.info) {
           return;
@@ -1010,6 +1044,15 @@ async function enviarMensaje() {
         tipo: "admin"
       }
     );
+    await set(
+  ref(
+    db,
+    "conversaciones/" +
+    usuarioSeleccionado +
+    "/ultimoMensaje"
+  ),
+  Date.now()
+);
 
   } catch (error) {
 
