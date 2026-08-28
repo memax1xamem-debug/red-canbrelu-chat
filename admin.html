@@ -1042,83 +1042,593 @@ listaMensajes.innerHTML = "";
 
     if (datos.tipo === "admin") {
 
-      nombre.textContent = "Administrador";
+<script type="module">
 
-    } else {
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 
-      nombre.textContent =
-        datos.nombre ||
-        nombreSeleccionado;
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+import {
+  getDatabase,
+  ref,
+  push,
+  onValue,
+  onChildAdded
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
+
+
+// ========================================
+// CONFIGURACIÓN FIREBASE
+// ========================================
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCKh_AHfvDSlAMxs1Kl-hvQse6Dj1g6sBo",
+  authDomain: "red-canbrelu-chat.firebaseapp.com",
+  databaseURL: "https://red-canbrelu-chat-default-rtdb.firebaseio.com/",
+  projectId: "red-canbrelu-chat",
+  storageBucket: "red-canbrelu-chat.firebasestorage.app",
+  messagingSenderId: "733334279827",
+  appId: "1:733334279827:web:7fdec02211ae5818ae9f66",
+  measurementId: "G-ZXGC8CCYK3"
+};
+
+
+// ========================================
+// INICIAR FIREBASE
+// ========================================
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
+
+
+// ========================================
+// PROTEGER PANEL ADMIN
+// ========================================
+
+onAuthStateChanged(auth, (user) => {
+
+  if (!user) {
+    window.location.replace("login.html");
+  }
+
+});
+
+
+// ========================================
+// ELEMENTOS HTML
+// ========================================
+
+const listaClientes =
+  document.getElementById("listaClientes");
+
+const listaMensajes =
+  document.getElementById("mensajes");
+
+const tituloChat =
+  document.getElementById("tituloChat");
+
+const input =
+  document.getElementById("mensaje");
+
+const botonEnviar =
+  document.getElementById("botonEnviar");
+
+const cerrarSesion =
+  document.getElementById("cerrarSesion");
+
+
+// ========================================
+// VARIABLES
+// ========================================
+
+let usuarioSeleccionado = null;
+let nombreSeleccionado = "";
+let cancelarMensajes = null;
+
+const mensajesVistos = {};
+const listenersNotificaciones = {};
+
+
+// ========================================
+// CERRAR SESIÓN
+// ========================================
+
+cerrarSesion.addEventListener("click", async () => {
+
+  await signOut(auth);
+
+  window.location.replace("login.html");
+
+});
+
+
+// ========================================
+// ACTUALIZAR BURBUJA DE NOTIFICACIÓN
+// ========================================
+
+function actualizarNotificacion(usuarioId) {
+
+  document
+    .querySelectorAll(".cliente")
+    .forEach(cliente => {
+
+      const id =
+        cliente.querySelector(".cliente-id");
+
+      if (!id || id.textContent !== usuarioId) {
+        return;
+      }
+
+      const notificacion =
+        cliente.querySelector(".notificacion");
+
+      if (!notificacion) return;
+
+      const cantidad =
+        mensajesVistos[usuarioId] || 0;
+
+      if (cantidad > 0) {
+
+        notificacion.textContent = cantidad;
+
+        notificacion.classList.remove("oculta");
+
+      } else {
+
+        notificacion.textContent = "0";
+
+        notificacion.classList.add("oculta");
+
+      }
+
+    });
+
+}
+
+
+// ========================================
+// ACTIVAR NOTIFICACIONES DE UN CLIENTE
+// ========================================
+
+function activarNotificaciones(usuarioId) {
+
+  if (listenersNotificaciones[usuarioId]) {
+    return;
+  }
+
+  const referenciaMensajes = ref(
+    db,
+    "conversaciones/" +
+    usuarioId +
+    "/mensajes"
+  );
+
+  let cargaInicial = true;
+
+  listenersNotificaciones[usuarioId] =
+    onChildAdded(
+      referenciaMensajes,
+      (snapshot) => {
+
+        const datos = snapshot.val();
+
+        if (!datos) return;
+
+        // No contar respuestas del administrador
+        if (datos.tipo === "admin") {
+          return;
+        }
+
+        // No contar mensajes anteriores
+        if (cargaInicial) {
+          return;
+        }
+
+        // Si estamos viendo ese cliente,
+        // no hace falta mostrar notificación
+        if (usuarioSeleccionado === usuarioId) {
+          return;
+        }
+
+        if (!mensajesVistos[usuarioId]) {
+          mensajesVistos[usuarioId] = 0;
+        }
+
+        mensajesVistos[usuarioId]++;
+
+        actualizarNotificacion(usuarioId);
+
+      }
+    );
+
+  setTimeout(() => {
+    cargaInicial = false;
+  }, 1200);
+
+}
+
+
+// ========================================
+// LISTAR CLIENTES
+// ========================================
+
+onValue(
+  ref(db, "conversaciones"),
+  (snapshot) => {
+
+    listaClientes.innerHTML = "";
+
+    const conversaciones =
+      snapshot.val();
+
+    if (!conversaciones) {
+
+      listaClientes.innerHTML =
+        '<div style="padding:15px;color:#777;">Todavía no hay clientes.</div>';
+
+      return;
 
     }
 
+    Object.entries(conversaciones).forEach(
+      ([usuarioId, conversacion]) => {
 
-    // Texto
-    const texto =
-      document.createElement("span");
+        if (!conversacion.info) {
+          return;
+        }
 
-    texto.textContent =
-      datos.texto || "";
-
-
-    // Hora
-    const hora =
-      document.createElement("span");
-
-    hora.classList.add("hora");
+        const info =
+          conversacion.info;
 
 
-    if (datos.fecha) {
+        // CONTENEDOR CLIENTE
 
-      const fecha =
-        new Date(datos.fecha);
+        const cliente =
+          document.createElement("div");
 
-      hora.textContent =
-        fecha.toLocaleTimeString(
-          "es-AR",
-          {
-            hour: "2-digit",
-            minute: "2-digit"
+        cliente.classList.add("cliente");
+
+        if (usuarioId === usuarioSeleccionado) {
+          cliente.classList.add("activo");
+        }
+
+
+        // PARTE SUPERIOR
+
+        const superior =
+          document.createElement("div");
+
+        superior.classList.add(
+          "cliente-superior"
+        );
+
+
+        // NOMBRE
+
+        const nombre =
+          document.createElement("div");
+
+        nombre.classList.add(
+          "cliente-nombre"
+        );
+
+        nombre.textContent =
+          info.nombre || "Usuario";
+
+
+        // NOTIFICACIÓN
+
+        const notificacion =
+          document.createElement("div");
+
+        notificacion.classList.add(
+          "notificacion",
+          "oculta"
+        );
+
+        const cantidad =
+          mensajesVistos[usuarioId] || 0;
+
+        if (cantidad > 0) {
+
+          notificacion.textContent =
+            cantidad;
+
+          notificacion.classList.remove(
+            "oculta"
+          );
+
+        } else {
+
+          notificacion.textContent = "0";
+
+        }
+
+        superior.appendChild(nombre);
+        superior.appendChild(notificacion);
+
+
+        // ID CLIENTE
+
+        const id =
+          document.createElement("div");
+
+        id.classList.add("cliente-id");
+
+        id.textContent = usuarioId;
+
+
+        cliente.appendChild(superior);
+        cliente.appendChild(id);
+
+
+        // ABRIR CONVERSACIÓN
+
+        cliente.addEventListener(
+          "click",
+          () => {
+
+            abrirConversacion(
+              usuarioId,
+              info.nombre || "Usuario"
+            );
+
           }
         );
 
-    }
+
+        listaClientes.appendChild(cliente);
 
 
-    mensaje.appendChild(nombre);
+        // Activar avisos para ese cliente
 
-    mensaje.appendChild(texto);
+        activarNotificaciones(usuarioId);
 
-    mensaje.appendChild(hora);
+      }
+    );
+
+  }
+);
 
 
-    listaMensajes.appendChild(mensaje);
+// ========================================
+// ABRIR CONVERSACIÓN
+// ========================================
+
+function abrirConversacion(
+  usuarioId,
+  nombre
+) {
+
+  usuarioSeleccionado = usuarioId;
+  nombreSeleccionado = nombre;
 
 
-    // Bajar al último mensaje
-    listaMensajes.scrollTop =
-      listaMensajes.scrollHeight;
+  // Borrar notificaciones pendientes
+
+  mensajesVistos[usuarioId] = 0;
+
+  actualizarNotificacion(usuarioId);
+
+
+  // Título
+
+  tituloChat.textContent = nombre;
+
+
+  // Habilitar campo
+
+  input.disabled = false;
+  botonEnviar.disabled = false;
+
+  input.focus();
+
+
+  // MARCAR CLIENTE ACTIVO
+
+  document
+    .querySelectorAll(".cliente")
+    .forEach(cliente => {
+
+      cliente.classList.remove("activo");
+
+      const id =
+        cliente.querySelector(".cliente-id");
+
+      if (
+        id &&
+        id.textContent === usuarioId
+      ) {
+
+        cliente.classList.add("activo");
+
+      }
+
+    });
+
+
+  // EN CELULAR IR AL CHAT
+
+  if (window.innerWidth <= 700) {
+
+    document
+      .querySelector(".chat")
+      .scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
 
   }
 
 
-  // ------------------------------------
-  // ENVIAR RESPUESTA
-  // ------------------------------------
+  // LIMPIAR CHAT ANTERIOR
 
-  function enviarMensaje() {
-
-    if (!usuarioSeleccionado) return;
+  listaMensajes.innerHTML = "";
 
 
-    const texto =
-      input.value.trim();
+  // CANCELAR LISTENER ANTERIOR
+
+  if (cancelarMensajes) {
+
+    cancelarMensajes();
+
+    cancelarMensajes = null;
+
+  }
 
 
-    if (texto === "") return;
+  // CARGAR MENSAJES
+
+  cancelarMensajes =
+    onChildAdded(
+      ref(
+        db,
+        "conversaciones/" +
+        usuarioId +
+        "/mensajes"
+      ),
+      (snapshot) => {
+
+        const datos =
+          snapshot.val();
+
+        if (!datos) return;
+
+        mostrarMensaje(datos);
+
+      }
+    );
+
+}
 
 
-    push(
+// ========================================
+// MOSTRAR MENSAJE
+// ========================================
+
+function mostrarMensaje(datos) {
+
+  const mensaje =
+    document.createElement("div");
+
+  mensaje.classList.add("mensaje");
+
+
+  if (datos.tipo === "admin") {
+
+    mensaje.classList.add(
+      "admin-msg"
+    );
+
+  } else {
+
+    mensaje.classList.add(
+      "cliente-msg"
+    );
+
+  }
+
+
+  // NOMBRE
+
+  const nombre =
+    document.createElement("span");
+
+  nombre.classList.add("nombre");
+
+  if (datos.tipo === "admin") {
+
+    nombre.textContent =
+      "Administrador";
+
+  } else {
+
+    nombre.textContent =
+      datos.nombre ||
+      nombreSeleccionado;
+
+  }
+
+
+  // TEXTO
+
+  const texto =
+    document.createElement("span");
+
+  texto.textContent =
+    datos.texto || "";
+
+
+  // HORA
+
+  const hora =
+    document.createElement("span");
+
+  hora.classList.add("hora");
+
+  if (datos.fecha) {
+
+    const fecha =
+      new Date(datos.fecha);
+
+    hora.textContent =
+      fecha.toLocaleTimeString(
+        "es-AR",
+        {
+          hour: "2-digit",
+          minute: "2-digit"
+        }
+      );
+
+  }
+
+
+  mensaje.appendChild(nombre);
+  mensaje.appendChild(texto);
+  mensaje.appendChild(hora);
+
+  listaMensajes.appendChild(mensaje);
+
+
+  // BAJAR AL ÚLTIMO MENSAJE
+
+  listaMensajes.scrollTop =
+    listaMensajes.scrollHeight;
+
+}
+
+
+// ========================================
+// ENVIAR MENSAJE
+// ========================================
+
+async function enviarMensaje() {
+
+  if (!usuarioSeleccionado) {
+    return;
+  }
+
+  const texto =
+    input.value.trim();
+
+  if (texto === "") {
+    return;
+  }
+
+  input.value = "";
+
+  input.focus();
+
+  try {
+
+    await push(
       ref(
         db,
         "conversaciones/" +
@@ -1133,41 +1643,52 @@ listaMensajes.innerHTML = "";
       }
     );
 
+  } catch (error) {
 
-    input.value = "";
+    console.error(
+      "Error al enviar:",
+      error
+    );
 
-    input.focus();
+    alert(
+      "No se pudo enviar el mensaje."
+    );
 
   }
 
-
-  // ------------------------------------
-  // BOTÓN ENVIAR
-  // ------------------------------------
-
-  botonEnviar.addEventListener(
-    "click",
-    enviarMensaje
-  );
+}
 
 
-  // ------------------------------------
-  // ENVIAR CON ENTER
-  // ------------------------------------
+// ========================================
+// BOTÓN ENVIAR
+// ========================================
 
-  input.addEventListener(
-    "keydown",
-    (event) => {
+botonEnviar.addEventListener(
+  "click",
+  enviarMensaje
+);
 
-      if (event.key === "Enter") {
 
-        event.preventDefault();
+// ========================================
+// ENVIAR CON ENTER
+// ========================================
 
-        enviarMensaje();
+input.addEventListener(
+  "keydown",
+  (event) => {
 
-      }
+    if (event.key === "Enter") {
+
+      event.preventDefault();
+
+      enviarMensaje();
 
     }
-  );
+
+  }
+);
 
 </script>
+
+</body>
+</html>
