@@ -418,7 +418,11 @@ document.addEventListener(
 );
 
 
-function mostrarNotificacionNavegador(nombre, texto) {
+function mostrarNotificacionNavegador(
+  usuarioId,
+  nombre,
+  texto
+) {
 
   if (
     !("Notification" in window) ||
@@ -427,16 +431,26 @@ function mostrarNotificacionNavegador(nombre, texto) {
     return;
   }
 
-  new Notification(
-    "Nuevo mensaje de " + nombre,
-    {
-      body: texto
-    }
+ const notificacion = new Notification(
+  "Nuevo mensaje de " + nombre,
+  {
+    body: texto
+  }
+);
+
+notificacion.onclick = () => {
+
+  window.focus();
+
+  abrirConversacion(
+    usuarioId,
+    nombre
   );
 
-}
+  notificacion.close();
 
-}
+};
+
 // ========================================
 // CERRAR SESIÓN
 // ========================================
@@ -587,6 +601,7 @@ actualizarTituloPagina();
 reproducirSonidoNotificacion();
   
 mostrarNotificacionNavegador(
+  usuarioId,
   datos.nombre || "Cliente",
   datos.texto || "Nuevo mensaje"
 );
