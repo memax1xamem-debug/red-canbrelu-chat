@@ -640,8 +640,14 @@ mostrarNotificacionNavegador(
 // LISTAR CLIENTES
 // ========================================
 
-onValue(
+const consultaConversaciones = query(
   ref(db, "conversaciones"),
+  orderByChild("ultimoMensaje"),
+  limitToLast(50)
+);
+
+onValue(
+  consultaConversaciones,
   (snapshot) => {
 
     listaClientes.innerHTML = "";
@@ -1098,7 +1104,49 @@ input.addEventListener(
 
   }
 );
+// ========================================
+// BUSCAR CLIENTES
+// ========================================
 
+buscarCliente.addEventListener("input", () => {
+
+  const busqueda =
+    buscarCliente.value
+      .trim()
+      .toLowerCase();
+
+  document
+    .querySelectorAll(".cliente")
+    .forEach(cliente => {
+
+      const nombre =
+        cliente
+          .querySelector(".cliente-nombre")
+          ?.textContent
+          .toLowerCase() || "";
+
+      const id =
+        cliente
+          .querySelector(".cliente-id")
+          ?.textContent
+          .toLowerCase() || "";
+
+      if (
+        nombre.includes(busqueda) ||
+        id.includes(busqueda)
+      ) {
+
+        cliente.style.display = "";
+
+      } else {
+
+        cliente.style.display = "none";
+
+      }
+
+    });
+
+});
 </script>
 
 </body>
