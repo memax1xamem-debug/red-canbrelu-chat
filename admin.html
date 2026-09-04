@@ -614,6 +614,18 @@ function activarNotificaciones(usuarioId) {
   );
 }
 
+        if (datos.texto) {
+  set(
+    ref(
+      db,
+      "conversaciones/" +
+      usuarioId +
+      "/ultimoTexto"
+    ),
+    datos.texto
+  );
+}
+        
         // Ignorar mensajes viejos
         if (
           !cargaInicialTerminada ||
@@ -794,8 +806,18 @@ onValue(
 
         id.textContent = usuarioId;
 
+// ÚLTIMO MENSAJE
 
+const ultimo =
+  document.createElement("div");
+
+ultimo.classList.add("cliente-ultimo");
+
+ultimo.textContent =
+  conversacion.ultimoTexto || "Sin mensajes";
+      
         cliente.appendChild(superior);
+        cliente.appendChild(ultimo);
         cliente.appendChild(id);
 
 
