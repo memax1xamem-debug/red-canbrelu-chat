@@ -521,22 +521,36 @@ function actualizarNotificacion(usuarioId) {
 
       if (!notificacion) return;
 
-    const cantidad =
-  mensajesVistos[usuarioId] || 0;
+      const nombre =
+      cliente.querySelector(".cliente-nombre");
+    
+      const cantidad =
+      mensajesVistos[usuarioId] || 0;
 
       if (cantidad > 0) {
 
         notificacion.textContent = cantidad;
 
         notificacion.classList.remove("oculta");
-
+        
+        if (nombre) {
+        nombre.style.color = "#075e54";
+        nombre.style.fontWeight = "bold";
+        }
+        
+        nombre.style.fontWeight = "bold";
+        nombre.style.color = "#075e54";
+      
       } else {
 
         notificacion.textContent = "0";
 
         notificacion.classList.add("oculta");
 
-      }
+        if (nombre) {
+        nombre.style.color = "#222";
+        nombre.style.fontWeight = "bold";
+}
 
     });
 
@@ -764,6 +778,50 @@ onValue(
         nombre.textContent =
           info.nombre || "Usuario";
 
+      const horaUltimo =
+  document.createElement("div");
+
+horaUltimo.style.fontSize = "11px";
+horaUltimo.style.color = "#888";
+horaUltimo.style.whiteSpace = "nowrap";
+
+if (conversacion.ultimoMensaje) {
+
+  const fechaUltimo =
+    new Date(conversacion.ultimoMensaje);
+
+  const hoy =
+    new Date();
+
+  const esHoy =
+    fechaUltimo.toDateString() ===
+    hoy.toDateString();
+
+  if (esHoy) {
+
+    horaUltimo.textContent =
+      fechaUltimo.toLocaleTimeString(
+        "es-AR",
+        {
+          hour: "2-digit",
+          minute: "2-digit"
+        }
+      );
+
+  } else {
+
+    horaUltimo.textContent =
+      fechaUltimo.toLocaleDateString(
+        "es-AR",
+        {
+          day: "2-digit",
+          month: "2-digit"
+        }
+      );
+
+  }
+
+}
 
         // NOTIFICACIÓN
 
@@ -794,6 +852,7 @@ onValue(
         }
 
         superior.appendChild(nombre);
+        superior.appendChild(horaUltimo);
         superior.appendChild(notificacion);
 
 
@@ -813,8 +872,13 @@ const ultimo =
 
 ultimo.classList.add("cliente-ultimo");
 
-ultimo.textContent =
+const textoUltimo =
   conversacion.ultimoTexto || "Sin mensajes";
+
+ultimo.textContent =
+  textoUltimo.length > 45
+    ? textoUltimo.substring(0, 45) + "..."
+    : textoUltimo;
       
         cliente.appendChild(superior);
         cliente.appendChild(ultimo);
@@ -1114,6 +1178,16 @@ async function enviarMensaje() {
   Date.now()
 );
 
+  await set(
+  ref(
+    db,
+    "conversaciones/" +
+    usuarioSeleccionado +
+    "/ultimoTexto"
+  ),
+  "Vos: " + texto
+);
+    
   } catch (error) {
 
     console.error(
