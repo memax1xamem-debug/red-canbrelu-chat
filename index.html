@@ -188,12 +188,15 @@
   import { initializeApp }
     from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 
- import {
+import {
   getDatabase,
   ref,
   push,
   set,
-  onChildAdded
+  onChildAdded,
+  onValue,
+  onDisconnect,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
   
   const firebaseConfig = {
@@ -249,6 +252,35 @@ if (nombreUsuario !== "") {
     localStorage.setItem("usuarioId", usuarioId);
   }
 
+  // ========================================
+// ESTADO EN LÍNEA / DESCONECTADO
+// ========================================
+
+const estadoRef = ref(
+  db,
+  "conversaciones/" + usuarioId + "/estado"
+);
+
+const conectadoRef = ref(db, ".info/connected");
+
+onValue(conectadoRef, (snapshot) => {
+
+  if (snapshot.val() === false) {
+    return;
+  }
+
+  onDisconnect(estadoRef).set({
+    enLinea: false,
+    ultimaConexion: serverTimestamp()
+  });
+
+  set(estadoRef, {
+    enLinea: true,
+    ultimaConexion: serverTimestamp()
+  });
+
+});
+  
 function enviarMensaje() {
   const texto = input.value.trim();
 
