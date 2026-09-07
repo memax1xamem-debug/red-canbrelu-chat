@@ -294,6 +294,11 @@ const estadoRef = ref(
 
 const conectadoRef = ref(db, ".info/connected");
 
+  const escribiendoRef = ref(
+  db,
+  "conversaciones/" + usuarioId + "/escribiendo"
+);
+  
 onValue(conectadoRef, (snapshot) => {
 
   if (snapshot.val() === false) {
@@ -395,10 +400,36 @@ async function enviarMensaje() {
 boton.addEventListener("click", enviarMensaje);
 
 // Enviar apretando Enter
+let tiempoEscribiendo;
+
+input.addEventListener("input", () => {
+
+  // Avisar que está escribiendo
+  set(escribiendoRef, true);
+
+  // Reiniciar temporizador
+  clearTimeout(tiempoEscribiendo);
+
+  // Si deja de escribir durante 1 segundo,
+  // quitar el indicador.
+  tiempoEscribiendo = setTimeout(() => {
+    set(escribiendoRef, false);
+  }, 1000);
+
+});
+
 input.addEventListener("keydown", (event) => {
+
   if (event.key === "Enter") {
+
+    event.preventDefault();
+
+    set(escribiendoRef, false);
+
     enviarMensaje();
+
   }
+
 });
 
 // Escuchar mensajes
