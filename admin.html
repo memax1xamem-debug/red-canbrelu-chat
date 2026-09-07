@@ -421,7 +421,8 @@ let usuarioSeleccionado = null;
 let nombreSeleccionado = "";
 let cancelarMensajes = null;
 let cancelarEstado = null;
-
+let clienteEstaEscribiendo = false;
+  
 const mensajesVistos = {};
 const listenersNotificaciones = {};
   
@@ -973,6 +974,22 @@ actualizarTituloPagina();
   cancelarEstado = null;
 }
 
+ const referenciaEscribiendo = ref(
+  db,
+  "conversaciones/" + usuarioId + "/escribiendo"
+);
+
+onValue(referenciaEscribiendo, (snapshot) => {
+
+  clienteEstaEscribiendo =
+    snapshot.val() === true;
+
+  if (clienteEstaEscribiendo) {
+    estadoCliente.textContent = "✍️ Escribiendo...";
+  }
+
+});
+  
 const referenciaEstado = ref(
   db,
   "conversaciones/" + usuarioId + "/estado"
@@ -984,6 +1001,9 @@ cancelarEstado = onValue(
 
     const estado = snapshot.val();
 
+    if (clienteEstaEscribiendo) {
+  return;
+}
     if (!estado) {
       estadoCliente.textContent = "";
       return;
