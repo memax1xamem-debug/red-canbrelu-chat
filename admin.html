@@ -12,6 +12,15 @@
       padding: 0;
       font-family: Arial, sans-serif;
     }
+
+    .estado-cliente {
+  font-size: 12px;
+  font-weight: normal;
+  margin-top: 4px;
+  color: #d9fdd3;
+  min-height: 14px;
+}
+    
 .header {
   background: #075e54;
   color: white;
@@ -280,8 +289,14 @@
   <div class="chat">
 
  <div class="header">
-  <span id="tituloChat">Seleccioná un cliente</span>
+
+  <div>
+    <div id="tituloChat">Seleccioná un cliente</div>
+    <div id="estadoCliente" class="estado-cliente"></div>
+  </div>
+
   <button id="cerrarSesion">Cerrar sesión</button>
+
 </div>
 
     <div class="mensajes" id="mensajes">
@@ -394,6 +409,10 @@ const cerrarSesion =
 const buscarCliente =
   document.getElementById("buscarCliente");
 
+  const estadoCliente =
+  document.getElementById("estadoCliente");
+  
+
 // ========================================
 // VARIABLES
 // ========================================
@@ -401,6 +420,7 @@ const buscarCliente =
 let usuarioSeleccionado = null;
 let nombreSeleccionado = "";
 let cancelarMensajes = null;
+let cancelarEstado = null;
 
 const mensajesVistos = {};
 const listenersNotificaciones = {};
@@ -947,6 +967,78 @@ actualizarTituloPagina();
   // Título
 
   tituloChat.textContent = nombre;
+
+  if (cancelarEstado) {
+  cancelarEstado();
+  cancelarEstado = null;
+}
+
+const referenciaEstado = ref(
+  db,
+  "conversaciones/" + usuarioId + "/estado"
+);
+
+cancelarEstado = onValue(
+  referenciaEstado,
+  (snapshot) => {
+
+    const estado = snapshot.val();
+
+    if (!estado) {
+      estadoCliente.textContent = "";
+      return;
+    }
+
+    if (estado.enLinea === true) {
+      estadoCliente.textContent = "🟢 En línea";
+      return;
+    }
+
+    if (estado.ultimaConexion) {
+
+      const fecha =
+        new Date(estado.ultimaConexion);
+
+      const hoy =
+        new Date();
+
+      const esHoy =
+        fecha.toDateString() === hoy.toDateString();
+
+      if (esHoy) {
+        estadoCliente.textContent =
+          "Última vez hoy " +
+          fecha.toLocaleTimeString(
+            "es-AR",
+            {
+              hour: "2-digit",
+              minute: "2-digit"
+            }
+          );
+      } else {
+        estadoCliente.textContent =
+          "Última vez " +
+          fecha.toLocaleDateString(
+            "es-AR",
+            {
+              day: "2-digit",
+              month: "2-digit"
+            }
+          ) +
+          " " +
+          fecha.toLocaleTimeString(
+            "es-AR",
+            {
+              hour: "2-digit",
+              minute: "2-digit"
+            }
+          );
+      }
+
+    }
+
+  }
+);
 
 
   // Habilitar campo
