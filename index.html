@@ -390,22 +390,6 @@ async function enviarMensaje() {
   }
 
 }
-set(ref(db, "conversaciones/" + usuarioId + "/info"), {
-  nombre: nombreUsuario,
-  usuarioId: usuarioId,
-  ultimaActividad: Date.now()
-});
- push(ref(db, "conversaciones/" + usuarioId + "/mensajes"), {
-  texto: texto,
-  fecha: Date.now(),
-  usuarioId: usuarioId,
-  nombre: nombreUsuario,
-  tipo: "cliente"
-});
-
-  input.value = "";
-  input.focus();
-}
 
 // Botón enviar
 boton.addEventListener("click", enviarMensaje);
