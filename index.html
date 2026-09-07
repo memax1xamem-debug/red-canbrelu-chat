@@ -223,16 +223,47 @@ let nombreUsuario = localStorage.getItem("nombreUsuario") || "";
 
 inputNombre.value = nombreUsuario;
 
-guardarNombre.addEventListener("click", () => {
+guardarNombre.addEventListener("click", async () => {
+
   const nombre = inputNombre.value.trim();
 
   if (nombre === "") return;
 
   nombreUsuario = nombre;
-  localStorage.setItem("nombreUsuario", nombre);
+
+  localStorage.setItem(
+    "nombreUsuario",
+    nombre
+  );
+
+  await set(
+    ref(
+      db,
+      "conversaciones/" +
+      usuarioId +
+      "/info"
+    ),
+    {
+      nombre: nombreUsuario,
+      usuarioId: usuarioId,
+      ultimaActividad: Date.now()
+    }
+  );
+
+  await set(
+    ref(
+      db,
+      "conversaciones/" +
+      usuarioId +
+      "/ultimoMensaje"
+    ),
+    Date.now()
+  );
 
   inputNombre.disabled = true;
+
   guardarNombre.textContent = "✓";
+
 });
 
 if (nombreUsuario !== "") {
