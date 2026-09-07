@@ -312,7 +312,8 @@ onValue(conectadoRef, (snapshot) => {
 
 });
   
-function enviarMensaje() {
+async function enviarMensaje() {
+
   const texto = input.value.trim();
 
   if (texto === "") return;
@@ -321,6 +322,74 @@ function enviarMensaje() {
     alert("Primero escribí tu nombre y guardalo.");
     return;
   }
+
+  try {
+
+    await set(
+      ref(
+        db,
+        "conversaciones/" +
+        usuarioId +
+        "/info"
+      ),
+      {
+        nombre: nombreUsuario,
+        usuarioId: usuarioId,
+        ultimaActividad: Date.now()
+      }
+    );
+
+    await push(
+      ref(
+        db,
+        "conversaciones/" +
+        usuarioId +
+        "/mensajes"
+      ),
+      {
+        texto: texto,
+        fecha: Date.now(),
+        usuarioId: usuarioId,
+        nombre: nombreUsuario,
+        tipo: "cliente"
+      }
+    );
+
+    await set(
+      ref(
+        db,
+        "conversaciones/" +
+        usuarioId +
+        "/ultimoMensaje"
+      ),
+      Date.now()
+    );
+
+    await set(
+      ref(
+        db,
+        "conversaciones/" +
+        usuarioId +
+        "/ultimoTexto"
+      ),
+      texto
+    );
+
+    input.value = "";
+    input.focus();
+
+  } catch (error) {
+
+    console.error("Error Firebase:", error);
+
+    alert(
+      "Error al enviar: " +
+      error.message
+    );
+
+  }
+
+}
 set(ref(db, "conversaciones/" + usuarioId + "/info"), {
   nombre: nombreUsuario,
   usuarioId: usuarioId,
