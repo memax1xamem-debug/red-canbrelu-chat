@@ -798,7 +798,17 @@ onValue(
 
         nombre.textContent =
           info.nombre || "Usuario";
+      
+// ESTADO DEL CLIENTE EN LA LISTA
 
+const estadoLista =
+  document.createElement("div");
+
+estadoLista.classList.add(
+  "estado-lista-cliente"
+);
+
+estadoLista.textContent = "";
       const horaUltimo =
   document.createElement("div");
 
@@ -872,7 +882,13 @@ if (conversacion.ultimoMensaje) {
 
         }
 
-        superior.appendChild(nombre);
+       const datosNombre =
+        document.createElement("div");
+
+        datosNombre.appendChild(nombre);
+        datosNombre.appendChild(estadoLista);
+
+        superior.appendChild(datosNombre);
         superior.appendChild(horaUltimo);
         superior.appendChild(notificacion);
 
