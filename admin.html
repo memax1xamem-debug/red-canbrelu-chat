@@ -809,11 +809,56 @@ estadoLista.classList.add(
 );
 
 estadoLista.textContent = "";
-      const referenciaEstadoLista = ref(
-  db,
-  "conversaciones/" + usuarioId + "/estado"
-);
+     const estado = conversacion.estado;
 
+if (estado) {
+
+  if (estado.enLinea === true) {
+
+    estadoLista.textContent = "🟢 En línea";
+
+  } else if (estado.ultimaConexion) {
+
+    const fecha =
+      new Date(estado.ultimaConexion);
+
+    const hoy =
+      new Date();
+
+    const esHoy =
+      fecha.toDateString() ===
+      hoy.toDateString();
+
+    if (esHoy) {
+
+      estadoLista.textContent =
+        "Última vez hoy " +
+        fecha.toLocaleTimeString(
+          "es-AR",
+          {
+            hour: "2-digit",
+            minute: "2-digit"
+          }
+        );
+
+    } else {
+
+      estadoLista.textContent =
+        "Última vez " +
+        fecha.toLocaleDateString(
+          "es-AR",
+          {
+            day: "2-digit",
+            month: "2-digit"
+          }
+        );
+
+    }
+
+  }
+
+}
+      
 onValue(
   referenciaEstadoLista,
   (snapshot) => {
