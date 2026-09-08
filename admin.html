@@ -974,93 +974,120 @@ actualizarTituloPagina();
   cancelarEstado = null;
 }
 
- const referenciaEscribiendo = ref(
-  db,
-  "conversaciones/" + usuarioId + "/escribiendo"
-);
-
-onValue(referenciaEscribiendo, (snapshot) => {
-
-  clienteEstaEscribiendo =
-    snapshot.val() === true;
-
-  if (clienteEstaEscribiendo) {
-    estadoCliente.textContent = "✍️ Escribiendo...";
-  }
-
-});
-  
 const referenciaEstado = ref(
   db,
   "conversaciones/" + usuarioId + "/estado"
 );
 
-cancelarEstado = onValue(
-  referenciaEstado,
+const referenciaEscribiendo = ref(
+  db,
+  "conversaciones/" + usuarioId + "/escribiendo"
+);
+
+let estadoActualCliente = null;
+
+
+// MOSTRAR ESTADO DEL CLIENTE
+
+function mostrarEstadoCliente() {
+
+  if (clienteEstaEscribiendo) {
+    estadoCliente.textContent = "✍️ Escribiendo...";
+    return;
+  }
+
+  const estado = estadoActualCliente;
+
+  if (!estado) {
+    estadoCliente.textContent = "";
+    return;
+  }
+
+  if (estado.enLinea === true) {
+    estadoCliente.textContent = "🟢 En línea";
+    return;
+  }
+
+  if (estado.ultimaConexion) {
+
+    const fecha =
+      new Date(estado.ultimaConexion);
+
+    const hoy =
+      new Date();
+
+    const esHoy =
+      fecha.toDateString() ===
+      hoy.toDateString();
+
+    if (esHoy) {
+
+      estadoCliente.textContent =
+        "Última vez hoy " +
+        fecha.toLocaleTimeString(
+          "es-AR",
+          {
+            hour: "2-digit",
+            minute: "2-digit"
+          }
+        );
+
+    } else {
+
+      estadoCliente.textContent =
+        "Última vez " +
+        fecha.toLocaleDateString(
+          "es-AR",
+          {
+            day: "2-digit",
+            month: "2-digit"
+          }
+        ) +
+        " " +
+        fecha.toLocaleTimeString(
+          "es-AR",
+          {
+            hour: "2-digit",
+            minute: "2-digit"
+          }
+        );
+
+    }
+
+  }
+
+}
+
+
+// ESCUCHAR SI ESTÁ ESCRIBIENDO
+
+onValue(
+  referenciaEscribiendo,
   (snapshot) => {
 
-    const estado = snapshot.val();
+    clienteEstaEscribiendo =
+      snapshot.val() === true;
 
-    if (clienteEstaEscribiendo) {
-  return;
-}
-    if (!estado) {
-      estadoCliente.textContent = "";
-      return;
-    }
-
-    if (estado.enLinea === true) {
-      estadoCliente.textContent = "🟢 En línea";
-      return;
-    }
-
-    if (estado.ultimaConexion) {
-
-      const fecha =
-        new Date(estado.ultimaConexion);
-
-      const hoy =
-        new Date();
-
-      const esHoy =
-        fecha.toDateString() === hoy.toDateString();
-
-      if (esHoy) {
-        estadoCliente.textContent =
-          "Última vez hoy " +
-          fecha.toLocaleTimeString(
-            "es-AR",
-            {
-              hour: "2-digit",
-              minute: "2-digit"
-            }
-          );
-      } else {
-        estadoCliente.textContent =
-          "Última vez " +
-          fecha.toLocaleDateString(
-            "es-AR",
-            {
-              day: "2-digit",
-              month: "2-digit"
-            }
-          ) +
-          " " +
-          fecha.toLocaleTimeString(
-            "es-AR",
-            {
-              hour: "2-digit",
-              minute: "2-digit"
-            }
-          );
-      }
-
-    }
+    mostrarEstadoCliente();
 
   }
 );
 
 
+// ESCUCHAR ESTADO EN LÍNEA
+
+cancelarEstado = onValue(
+  referenciaEstado,
+  (snapshot) => {
+
+    estadoActualCliente =
+      snapshot.val();
+
+    mostrarEstadoCliente();
+
+  }
+);
+  
   // Habilitar campo
 
   input.disabled = false;
