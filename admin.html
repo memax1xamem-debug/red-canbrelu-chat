@@ -602,31 +602,17 @@ function activarNotificaciones(usuarioId) {
     return;
   }
 
-  const referenciaMensajes = ref(
-    db,
-    "conversaciones/" +
-    usuarioId +
-    "/mensajes"
+  const referenciaMensajes = query(
+    ref(
+      db,
+      "conversaciones/" +
+      usuarioId +
+      "/mensajes"
+    ),
+    limitToLast(1)
   );
 
-  let mensajesIniciales = new Set();
-  let cargaInicialTerminada = false;
-
-  onValue(
-    referenciaMensajes,
-    (snapshot) => {
-
-      snapshot.forEach((mensajeSnapshot) => {
-        mensajesIniciales.add(mensajeSnapshot.key);
-      });
-
-      cargaInicialTerminada = true;
-
-    },
-    {
-      onlyOnce: true
-    }
-  );
+  let primerMensaje = true;
 
   listenersNotificaciones[usuarioId] =
     onChildAdded(
@@ -636,84 +622,75 @@ function activarNotificaciones(usuarioId) {
         const datos = snapshot.val();
 
         if (!datos) return;
-        
-        if (datos.fecha) {
-  set(
-    ref(
-      db,
-      "conversaciones/" +
-      usuarioId +
-      "/ultimoMensaje"
-    ),
-    datos.fecha
-  );
-}
 
-        if (datos.texto) {
-  set(
-    ref(
-      db,
-      "conversaciones/" +
-      usuarioId +
-      "/ultimoTexto"
-    ),
-    datos.texto
-  );
-}
-        
-        // Ignorar mensajes viejos
-        if (
-          !cargaInicialTerminada ||
-          mensajesIniciales.has(snapshot.key)
-        ) {
+
+        // Al abrir el administrador,
+        // ignorar el último mensaje que ya existía
+        if (primerMensaje) {
+
+          primerMensaje = false;
+
           return;
         }
 
-        // Ignorar respuestas del administrador
+
+        // Ignorar mensajes enviados por administrador
         if (datos.tipo === "admin") {
           return;
         }
 
-        // Si estamos viendo ese chat,
-        // no mostrar notificación
+
+        // Si estamos mirando este chat,
+        // no generar notificación
         if (usuarioSeleccionado === usuarioId) {
           return;
         }
+
 
         if (!mensajesVistos[usuarioId]) {
           mensajesVistos[usuarioId] = 0;
         }
 
-       mensajesVistos[usuarioId]++;
+        mensajesVistos[usuarioId]++;
 
-totalNoLeidos++;
+        totalNoLeidos++;
 
-actualizarNotificacion(usuarioId);
+        actualizarNotificacion(usuarioId);
 
-actualizarTituloPagina();
+        actualizarTituloPagina();
 
-        const clienteNuevo = [...document.querySelectorAll(".cliente")]
-  .find(cliente => {
-    const id = cliente.querySelector(".cliente-id");
-    return id && id.textContent === usuarioId;
-  });
 
-if (clienteNuevo) {
-  listaClientes.prepend(clienteNuevo);
-}
-        
-reproducirSonidoNotificacion();
-  
-mostrarNotificacionNavegador(
-  usuarioId,
-  datos.nombre || "Cliente",
-  datos.texto || "Nuevo mensaje"
-);
+        const clienteNuevo =
+          [...document.querySelectorAll(".cliente")]
+            .find(cliente => {
+
+              const id =
+                cliente.querySelector(".cliente-id");
+
+              return (
+                id &&
+                id.textContent === usuarioId
+              );
+
+            });
+
+        if (clienteNuevo) {
+          listaClientes.prepend(clienteNuevo);
+        }
+
+
+        reproducirSonidoNotificacion();
+
+        mostrarNotificacionNavegador(
+          usuarioId,
+          datos.nombre || "Cliente",
+          datos.texto || "Nuevo mensaje"
+        );
+
       }
     );
 
 }
-
 
 // ========================================
 // LISTAR CLIENTES
