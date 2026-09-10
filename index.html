@@ -369,22 +369,23 @@ async function enviarMensaje() {
       }
     );
 
-    await push(
-      ref(
-        db,
-        "conversaciones/" +
-        usuarioId +
-        "/mensajes"
-      ),
-      {
-        texto: texto,
-        fecha: Date.now(),
-        usuarioId: usuarioId,
-        nombre: nombreUsuario,
-        tipo: "cliente"
-      }
-    );
-
+ await push(
+  ref(
+    db,
+    "conversaciones/" +
+    usuarioId +
+    "/mensajes"
+  ),
+  {
+    texto: texto,
+    fecha: Date.now(),
+    usuarioId: usuarioId,
+    nombre: nombreUsuario,
+    tipo: "cliente",
+    leido: false
+  }
+);
+    
     await set(
       ref(
         db,
