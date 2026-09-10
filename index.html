@@ -157,8 +157,7 @@
 
   <div class="header">
     Red Canbrelú Chat
-    <div class="subtitulo">Mensajería directa</div>
-  </div>
+<div class="subtitulo" id="estadoAdmin">Mensajería directa</div>  </div>
 <div class="usuario">
   <input
     type="text"
@@ -297,6 +296,32 @@ const conectadoRef = ref(db, ".info/connected");
   const escribiendoRef = ref(
   db,
   "conversaciones/" + usuarioId + "/escribiendo"
+);
+const adminEscribiendoRef = ref(
+  db,
+  "conversaciones/" + usuarioId + "/adminEscribiendo"
+);
+
+const estadoAdmin =
+  document.getElementById("estadoAdmin");
+
+onValue(
+  adminEscribiendoRef,
+  (snapshot) => {
+
+    if (snapshot.val() === true) {
+
+      estadoAdmin.textContent =
+        "✍️ Administrador está escribiendo...";
+
+    } else {
+
+      estadoAdmin.textContent =
+        "Mensajería directa";
+
+    }
+
+  }
 );
   
 onValue(conectadoRef, (snapshot) => {
