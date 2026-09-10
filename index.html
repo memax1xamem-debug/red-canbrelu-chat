@@ -405,8 +405,10 @@ async function enviarMensaje() {
       texto
     );
 
-    input.value = "";
-    input.focus();
+  await set(escribiendoRef, false);
+
+input.value = "";
+input.focus();
 
   } catch (error) {
 
