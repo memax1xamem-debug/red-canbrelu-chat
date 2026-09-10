@@ -1085,6 +1085,11 @@ const referenciaEstado = ref(
   "conversaciones/" + usuarioId + "/estado"
 );
 
+const referenciaAdminEscribiendo = ref(
+  db,
+  "conversaciones/" + usuarioId + "/adminEscribiendo"
+);
+  
 const referenciaEscribiendo = ref(
   db,
   "conversaciones/" + usuarioId + "/escribiendo"
@@ -1448,6 +1453,33 @@ async function enviarMensaje() {
 
 }
 
+  let temporizadorEscribiendoAdmin = null;
+
+input.addEventListener("input", async () => {
+
+  if (!usuarioSeleccionado) return;
+
+  const referenciaAdminEscribiendo = ref(
+    db,
+    "conversaciones/" +
+    usuarioSeleccionado +
+    "/adminEscribiendo"
+  );
+
+  await set(referenciaAdminEscribiendo, true);
+
+  clearTimeout(temporizadorEscribiendoAdmin);
+
+  temporizadorEscribiendoAdmin = setTimeout(async () => {
+
+    await set(
+      referenciaAdminEscribiendo,
+      false
+    );
+
+  }, 1500);
+
+});
 
 // ========================================
 // BOTÓN ENVIAR
