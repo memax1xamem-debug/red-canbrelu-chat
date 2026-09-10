@@ -1399,7 +1399,15 @@ async function enviarMensaje() {
   }
 
   input.value = "";
-
+set(
+  ref(
+    db,
+    "conversaciones/" +
+    usuarioSeleccionado +
+    "/adminEscribiendo"
+  ),
+  false
+);
   input.focus();
 
   try {
@@ -1453,29 +1461,30 @@ async function enviarMensaje() {
 
 }
 
-  let temporizadorEscribiendoAdmin = null;
+// ========================================
+// ADMIN ESTÁ ESCRIBIENDO
+// ========================================
 
-input.addEventListener("input", async () => {
+let temporizadorEscribiendoAdmin;
+
+input.addEventListener("input", () => {
 
   if (!usuarioSeleccionado) return;
 
-  const referenciaAdminEscribiendo = ref(
+  const adminEscribiendoRef = ref(
     db,
     "conversaciones/" +
     usuarioSeleccionado +
     "/adminEscribiendo"
   );
 
-  await set(referenciaAdminEscribiendo, true);
+  set(adminEscribiendoRef, true);
 
   clearTimeout(temporizadorEscribiendoAdmin);
 
-  temporizadorEscribiendoAdmin = setTimeout(async () => {
+  temporizadorEscribiendoAdmin = setTimeout(() => {
 
-    await set(
-      referenciaAdminEscribiendo,
-      false
-    );
+    set(adminEscribiendoRef, false);
 
   }, 1500);
 
