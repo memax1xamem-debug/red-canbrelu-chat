@@ -421,6 +421,7 @@ let usuarioSeleccionado = null;
 let nombreSeleccionado = "";
 let cancelarMensajes = null;
 let cancelarEstado = null;
+let cancelarEscribiendo = null;
 let clienteEstaEscribiendo = false;
   
 const mensajesVistos = {};
@@ -1169,10 +1170,16 @@ function mostrarEstadoCliente() {
 
 }
 
-
 // ESCUCHAR SI ESTÁ ESCRIBIENDO
 
-onValue(
+if (cancelarEscribiendo) {
+  cancelarEscribiendo();
+  cancelarEscribiendo = null;
+}
+
+clienteEstaEscribiendo = false;
+
+cancelarEscribiendo = onValue(
   referenciaEscribiendo,
   (snapshot) => {
 
@@ -1183,8 +1190,7 @@ onValue(
 
   }
 );
-
-
+  
 // ESCUCHAR ESTADO EN LÍNEA
 
 cancelarEstado = onValue(
