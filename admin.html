@@ -1303,18 +1303,20 @@ onValue(
 
   }
 
-
   // CARGAR MENSAJES
 
-  cancelarMensajes =
-    onChildAdded(
+cancelarMensajes =
+  onChildAdded(
+    query(
       ref(
         db,
         "conversaciones/" +
         usuarioId +
         "/mensajes"
       ),
-      (snapshot) => {
+      limitToLast(50)
+    ),
+    (snapshot) => {
 
         const datos =
           snapshot.val();
