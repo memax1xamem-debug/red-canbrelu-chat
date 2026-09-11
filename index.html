@@ -193,6 +193,7 @@ import {
   push,
   set,
   onChildAdded,
+  onChildChanged,
   onValue,
   onDisconnect,
   serverTimestamp
@@ -467,6 +468,7 @@ onChildAdded(
   const datos = snapshot.val();
 
   const mensaje = document.createElement("div");
+  mensaje.dataset.id = snapshot.key;
   mensaje.classList.add("mensaje");
 
   if (datos.tipo === "cliente") {
@@ -492,14 +494,28 @@ if (datos.tipo === "admin") {
   const hora = document.createElement("span");
   hora.classList.add("hora");
 
-  if (datos.fecha) {
-    const fecha = new Date(datos.fecha);
+if (datos.fecha) {
 
-    hora.textContent = fecha.toLocaleTimeString("es-AR", {
-      hour: "2-digit",
-      minute: "2-digit"
-    });
+  const fecha = new Date(datos.fecha);
+
+  let textoHora = fecha.toLocaleTimeString("es-AR", {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+
+  // Mostrar estado solamente en mensajes enviados por el cliente
+  if (datos.tipo === "cliente") {
+
+    if (datos.leido === true) {
+      textoHora += "  ✓✓";
+    } else {
+      textoHora += "  ✓";
+    }
+
   }
+
+  hora.textContent = textoHora;
+}
 
   mensaje.appendChild(hora);
 
@@ -507,6 +523,48 @@ if (datos.tipo === "admin") {
 
   lista.scrollTop = lista.scrollHeight;
 });
+
+  // ========================================
+// ACTUALIZAR ESTADO LEÍDO EN TIEMPO REAL
+// ========================================
+
+onChildChanged(
+  ref(db, "conversaciones/" + usuarioId + "/mensajes"),
+  (snapshot) => {
+
+    const datos = snapshot.val();
+
+    if (!datos || datos.tipo !== "cliente") {
+      return;
+    }
+
+    const mensaje = document.querySelector(
+      '.mensaje[data-id="' + snapshot.key + '"]'
+    );
+
+    if (!mensaje) return;
+
+    const hora = mensaje.querySelector(".hora");
+
+    if (!hora || !datos.fecha) return;
+
+    const fecha = new Date(datos.fecha);
+
+    let textoHora = fecha.toLocaleTimeString("es-AR", {
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+
+    if (datos.leido === true) {
+      textoHora += "  ✓✓";
+    } else {
+      textoHora += "  ✓";
+    }
+
+    hora.textContent = textoHora;
+
+  }
+);
 
 </script>
 
