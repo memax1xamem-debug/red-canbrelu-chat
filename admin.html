@@ -1254,6 +1254,44 @@ cancelarEstado = onValue(
 
   listaMensajes.innerHTML = "";
 
+  const mensajesRef = ref(
+  db,
+  "conversaciones/" + usuarioId + "/mensajes"
+);
+
+onValue(
+  mensajesRef,
+  (snapshot) => {
+
+    snapshot.forEach((hijo) => {
+
+      const datos = hijo.val();
+
+      if (
+        datos &&
+        datos.tipo === "cliente" &&
+        datos.leido !== true
+      ) {
+
+        set(
+          ref(
+            db,
+            "conversaciones/" +
+            usuarioId +
+            "/mensajes/" +
+            hijo.key +
+            "/leido"
+          ),
+          true
+        );
+
+      }
+
+    });
+
+  },
+  { onlyOnce: true }
+);
 
   // CANCELAR LISTENER ANTERIOR
 
@@ -1430,6 +1468,7 @@ set(
         fecha: Date.now(),
         nombre: "Administrador",
         tipo: "admin"
+        leido: false
       }
     );
     await set(
