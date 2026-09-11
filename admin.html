@@ -340,6 +340,7 @@ import {
   set,
   onValue,
   onChildAdded,
+  onChildChanged,
   query,
   orderByChild,
   limitToLast
@@ -1285,7 +1286,7 @@ cancelarMensajes =
 
 if (!datos) return;
 
-mostrarMensaje(datos);
+mostrarMensaje(datos, snapshot.key);
 
 // MARCAR COMO LEÍDO SI ES MENSAJE DEL CLIENTE
 if (
@@ -1309,11 +1310,12 @@ if (
 // MOSTRAR MENSAJE
 // ========================================
 
-function mostrarMensaje(datos) {
-
+function mostrarMensaje(datos, mensajeId) {
   const mensaje =
     document.createElement("div");
 
+  mensaje.dataset.id = mensajeId;
+  
   mensaje.classList.add("mensaje");
 
 
@@ -1369,22 +1371,34 @@ function mostrarMensaje(datos) {
 
   hora.classList.add("hora");
 
-  if (datos.fecha) {
+ if (datos.fecha) {
 
-    const fecha =
-      new Date(datos.fecha);
+  const fecha =
+    new Date(datos.fecha);
 
-    hora.textContent =
-      fecha.toLocaleTimeString(
-        "es-AR",
-        {
-          hour: "2-digit",
-          minute: "2-digit"
-        }
-      );
+  let textoHora =
+    fecha.toLocaleTimeString(
+      "es-AR",
+      {
+        hour: "2-digit",
+        minute: "2-digit"
+      }
+    );
+
+  // Mostrar ✓ / ✓✓ solamente
+  // en mensajes enviados por el administrador
+  if (datos.tipo === "admin") {
+
+    if (datos.leido === true) {
+      textoHora += "  ✓✓";
+    } else {
+      textoHora += "  ✓";
+    }
 
   }
 
+  hora.textContent = textoHora;
+}
 
   mensaje.appendChild(nombre);
   mensaje.appendChild(texto);
@@ -1400,7 +1414,56 @@ function mostrarMensaje(datos) {
 
 }
 
+// ========================================
+// ACTUALIZAR ESTADO LEÍDO EN TIEMPO REAL
+// ========================================
 
+onChildChanged(
+  ref(
+    db,
+    "conversaciones/" +
+    usuarioSeleccionado +
+    "/mensajes"
+  ),
+  (snapshot) => {
+
+    const datos = snapshot.val();
+
+    if (!datos || datos.tipo !== "admin") {
+      return;
+    }
+
+    const mensaje = document.querySelector(
+      '.mensaje[data-id="' + snapshot.key + '"]'
+    );
+
+    if (!mensaje) return;
+
+    const hora = mensaje.querySelector(".hora");
+
+    if (!hora || !datos.fecha) return;
+
+    const fecha = new Date(datos.fecha);
+
+    let textoHora =
+      fecha.toLocaleTimeString(
+        "es-AR",
+        {
+          hour: "2-digit",
+          minute: "2-digit"
+        }
+      );
+
+    if (datos.leido === true) {
+      textoHora += "  ✓✓";
+    } else {
+      textoHora += "  ✓";
+    }
+
+    hora.textContent = textoHora;
+  }
+);
+      
 // ========================================
 // ENVIAR MENSAJE
 // ========================================
