@@ -1305,8 +1305,62 @@ if (
     true
   );
 }
-    }
+       }
   );
+
+// CANCELAR LISTENER DE LEÍDOS DEL CHAT ANTERIOR
+if (cancelarLeidos) {
+  cancelarLeidos();
+  cancelarLeidos = null;
+}
+
+// ESCUCHAR CAMBIOS DE ✓ A ✓✓
+cancelarLeidos = onChildChanged(
+  ref(
+    db,
+    "conversaciones/" +
+    usuarioId +
+    "/mensajes"
+  ),
+  (snapshot) => {
+
+    const datos = snapshot.val();
+
+    if (!datos || datos.tipo !== "admin") {
+      return;
+    }
+
+    const mensaje = document.querySelector(
+      '.mensaje[data-id="' + snapshot.key + '"]'
+    );
+
+    if (!mensaje) return;
+
+    const hora = mensaje.querySelector(".hora");
+
+    if (!hora || !datos.fecha) return;
+
+    const fecha = new Date(datos.fecha);
+
+    let textoHora =
+      fecha.toLocaleTimeString(
+        "es-AR",
+        {
+          hour: "2-digit",
+          minute: "2-digit"
+        }
+      );
+
+    if (datos.leido === true) {
+      textoHora += "  ✓✓";
+    } else {
+      textoHora += "  ✓";
+    }
+
+    hora.textContent = textoHora;
+  }
+);
+
 }
   
 // ========================================
