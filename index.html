@@ -437,17 +437,16 @@ async function enviarArchivo() {
 
     archivoInput.value = "";
 
-  } catch (error) {
+catch (error) {
 
-    console.error(
-      "Error al subir archivo:",
-      error
-    );
+  console.error("ERROR STORAGE:", error);
 
-    alert(
-      "No se pudo enviar el archivo."
-    );
-  }
+  alert(
+    "Error al subir: " +
+    error.code +
+    "\n" +
+    error.message
+  );
 }
 
 archivoInput.addEventListener(
