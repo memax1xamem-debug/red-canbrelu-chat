@@ -169,16 +169,32 @@
 </div>
   <div class="mensajes" id="mensajes"></div>
 
-  <div class="entrada">
-    <input
-      type="text"
-      id="mensaje"
-      placeholder="Escribí un mensaje..."
-      autocomplete="off"
-    >
+ <div class="entrada">
 
-    <button id="botonEnviar">➤</button>
-  </div>
+  <input
+    type="file"
+    id="archivo"
+    hidden
+  >
+
+  <button
+    type="button"
+    id="botonArchivo"
+    title="Adjuntar archivo"
+  >
+    📎
+  </button>
+
+  <input
+    type="text"
+    id="mensaje"
+    placeholder="Escribí un mensaje..."
+    autocomplete="off"
+  >
+
+  <button id="botonEnviar">➤</button>
+
+</div>
 
 </div>
 
