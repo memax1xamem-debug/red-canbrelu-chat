@@ -235,6 +235,12 @@ import {
 const inputNombre = document.getElementById("nombreUsuario");
 const guardarNombre = document.getElementById("guardarNombre");
 
+  const archivoInput =
+  document.getElementById("archivo");
+
+const botonArchivo =
+  document.getElementById("botonArchivo");
+  
 let nombreUsuario = localStorage.getItem("nombreUsuario") || "";
 
 inputNombre.value = nombreUsuario;
@@ -357,6 +363,10 @@ onValue(conectadoRef, (snapshot) => {
     ultimaConexion: serverTimestamp()
   });
 
+});
+
+  botonArchivo.addEventListener("click", () => {
+  archivoInput.click();
 });
   
 async function enviarMensaje() {
