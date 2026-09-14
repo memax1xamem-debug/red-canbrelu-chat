@@ -376,6 +376,84 @@ onValue(conectadoRef, (snapshot) => {
   botonArchivo.addEventListener("click", () => {
   archivoInput.click();
 });
+
+async function enviarArchivo() {
+
+  const archivo = archivoInput.files[0];
+
+  if (!archivo) return;
+
+  if (archivo.size > 10 * 1024 * 1024) {
+    alert("El archivo supera los 10 MB.");
+    archivoInput.value = "";
+    return;
+  }
+
+  const nombreSeguro =
+    Date.now() + "_" + archivo.name;
+
+  const referenciaArchivo =
+    storageRef(
+      storage,
+      "archivos/" +
+      usuarioId +
+      "/" +
+      nombreSeguro
+    );
+
+  try {
+
+    await uploadBytes(
+      referenciaArchivo,
+      archivo
+    );
+
+    const url =
+      await getDownloadURL(
+        referenciaArchivo
+      );
+
+    await push(
+      ref(
+        db,
+        "conversaciones/" +
+        usuarioId +
+        "/mensajes"
+      ),
+      {
+        tipo: "cliente",
+        nombre: nombreUsuario,
+        fecha: Date.now(),
+        leido: false,
+
+        archivo: true,
+        archivoNombre: archivo.name,
+        archivoTipo: archivo.type,
+        archivoUrl: url,
+
+        texto: ""
+      }
+    );
+
+    archivoInput.value = "";
+
+  } catch (error) {
+
+    console.error(
+      "Error al subir archivo:",
+      error
+    );
+
+    alert(
+      "No se pudo enviar el archivo."
+    );
+  }
+}
+
+archivoInput.addEventListener(
+  "change",
+  enviarArchivo
+);
   
 async function enviarMensaje() {
 
