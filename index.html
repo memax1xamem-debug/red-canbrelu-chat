@@ -520,7 +520,25 @@ if (datos.fecha) {
   mensaje.appendChild(hora);
 
    lista.appendChild(mensaje);
-
+    
+// MARCAR MENSAJE DEL ADMIN COMO LEÍDO
+if (
+  datos.tipo === "admin" &&
+  datos.leido !== true
+) {
+  set(
+    ref(
+      db,
+      "conversaciones/" +
+      usuarioId +
+      "/mensajes/" +
+      snapshot.key +
+      "/leido"
+    ),
+    true
+  );
+}
+    
   lista.scrollTop = lista.scrollHeight;
 });
 
