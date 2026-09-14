@@ -423,6 +423,7 @@ let nombreSeleccionado = "";
 let cancelarMensajes = null;
 let cancelarEstado = null;
 let cancelarEscribiendo = null;
+let cancelarLeidos = null;
 let clienteEstaEscribiendo = false;
   
 const mensajesVistos = {};
@@ -1413,16 +1414,21 @@ function mostrarMensaje(datos, mensajeId) {
     listaMensajes.scrollHeight;
 
 }
-
 // ========================================
 // ACTUALIZAR ESTADO LEÍDO EN TIEMPO REAL
 // ========================================
 
-onChildChanged(
+// Cancelar listener del chat anterior
+if (cancelarLeidos) {
+  cancelarLeidos();
+  cancelarLeidos = null;
+}
+
+cancelarLeidos = onChildChanged(
   ref(
     db,
     "conversaciones/" +
-    usuarioSeleccionado +
+    usuarioId +
     "/mensajes"
   ),
   (snapshot) => {
@@ -1437,6 +1443,33 @@ onChildChanged(
       '.mensaje[data-id="' + snapshot.key + '"]'
     );
 
+    if (!mensaje) return;
+
+    const hora = mensaje.querySelector(".hora");
+
+    if (!hora || !datos.fecha) return;
+
+    const fecha = new Date(datos.fecha);
+
+    let textoHora =
+      fecha.toLocaleTimeString(
+        "es-AR",
+        {
+          hour: "2-digit",
+          minute: "2-digit"
+        }
+      );
+
+    if (datos.leido === true) {
+      textoHora += "  ✓✓";
+    } else {
+      textoHora += "  ✓";
+    }
+
+    hora.textContent = textoHora;
+  }
+);
+      
     if (!mensaje) return;
 
     const hora = mensaje.querySelector(".hora");
