@@ -597,11 +597,33 @@ if (datos.tipo === "admin") {
   mensaje.appendChild(nombre);
 }
 
+ if (datos.archivo === true && datos.archivoUrl) {
+
+  const enlace = document.createElement("a");
+
+  enlace.href = datos.archivoUrl;
+  enlace.target = "_blank";
+  enlace.rel = "noopener noreferrer";
+  enlace.textContent =
+    "📎 " + (datos.archivoNombre || "Abrir archivo");
+
+  enlace.style.display = "block";
+  enlace.style.marginTop = "4px";
+  enlace.style.color = "#075e54";
+  enlace.style.fontWeight = "bold";
+  enlace.style.textDecoration = "none";
+
+  mensaje.appendChild(enlace);
+
+} else {
+
   const texto = document.createElement("span");
   texto.classList.add("texto");
   texto.textContent = datos.texto || "";
 
   mensaje.appendChild(texto);
+
+}
 
   const hora = document.createElement("span");
   hora.classList.add("hora");
