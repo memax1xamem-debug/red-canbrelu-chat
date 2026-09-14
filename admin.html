@@ -1325,7 +1325,9 @@ cancelarLeidos = onChildChanged(
   (snapshot) => {
 
     const datos = snapshot.val();
-
+    
+console.log("CAMBIO LEIDO:", snapshot.key, datos);
+    
     if (!datos || datos.tipo !== "admin") {
       return;
     }
