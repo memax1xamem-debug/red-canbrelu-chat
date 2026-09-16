@@ -255,6 +255,18 @@ let nombreUsuario = localStorage.getItem("nombreUsuario") || "";
 
 inputNombre.value = nombreUsuario;
 
+let usuarioId = localStorage.getItem("usuarioId");
+
+if (!usuarioId) {
+  usuarioId =
+    "usuario_" +
+    Date.now() +
+    "_" +
+    Math.random().toString(36).substring(2, 8);
+
+  localStorage.setItem("usuarioId", usuarioId);
+}
+  
   guardarNombre.addEventListener("click", async () => {
 
   const nombre = inputNombre.value.trim();
