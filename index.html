@@ -842,13 +842,24 @@ let eventoInstalacion;
 
 const botonInstalar = document.getElementById("instalarApp");
 
+const appYaInstalada =
+  window.matchMedia("(display-mode: standalone)").matches ||
+  window.navigator.standalone === true;
+
+if (appYaInstalada) {
+  botonInstalar.style.display = "none";
+}
+    
 window.addEventListener("beforeinstallprompt", (event) => {
   event.preventDefault();
 
   eventoInstalacion = event;
-  botonInstalar.style.display = "block";
-});
 
+  if (!appYaInstalada) {
+    botonInstalar.style.display = "block";
+  }
+});
+    
 botonInstalar.addEventListener("click", async () => {
 
   if (eventoInstalacion) {
