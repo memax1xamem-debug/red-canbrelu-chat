@@ -1439,6 +1439,30 @@ const texto = document.createElement("span");
 
 if (datos.archivo === true && datos.archivoUrl) {
 
+if (
+  datos.archivoTipo &&
+  datos.archivoTipo.startsWith("image/")
+) {
+
+  const imagen = document.createElement("img");
+
+  imagen.src = datos.archivoUrl;
+  imagen.alt = datos.archivoNombre || "Imagen";
+
+  imagen.style.maxWidth = "100%";
+  imagen.style.maxHeight = "300px";
+  imagen.style.borderRadius = "8px";
+  imagen.style.cursor = "pointer";
+  imagen.style.display = "block";
+
+  imagen.addEventListener("click", () => {
+    window.open(datos.archivoUrl, "_blank");
+  });
+
+  texto.appendChild(imagen);
+
+} else {
+
   const enlace = document.createElement("a");
 
   enlace.href = datos.archivoUrl;
@@ -1453,7 +1477,8 @@ if (datos.archivo === true && datos.archivoUrl) {
   enlace.style.textDecoration = "none";
 
   texto.appendChild(enlace);
-
+}
+  
 } else {
 
   texto.textContent = datos.texto || "";
