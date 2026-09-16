@@ -435,6 +435,26 @@ async function enviarArchivo() {
       }
     );
 
+await set(
+  ref(
+    db,
+    "conversaciones/" +
+    usuarioId +
+    "/ultimoMensaje"
+  ),
+  Date.now()
+);
+
+await set(
+  ref(
+    db,
+    "conversaciones/" +
+    usuarioId +
+    "/ultimoTexto"
+  ),
+  "📎 " + archivo.name
+);
+    
    archivoInput.value = "";
 
 } catch (error) {
