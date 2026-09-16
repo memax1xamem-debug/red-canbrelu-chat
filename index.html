@@ -167,7 +167,21 @@
   <div class="header">
     Red Canbrelú Chat
 <div class="subtitulo" id="estadoAdmin">Mensajería directa</div>  </div>
-<div class="usuario">
+<button id="instalarApp" style="
+  display:none;
+  margin:8px 10px;
+  padding:11px;
+  border:none;
+  border-radius:10px;
+  background:#075e54;
+  color:white;
+  font-size:15px;
+  font-weight:bold;
+  cursor:pointer;
+">
+  📲 Instalar Red Canbrelú Chat
+</button>
+  <div class="usuario">
   <input
     type="text"
     id="nombreUsuario"
@@ -824,7 +838,36 @@ onChildChanged(
         });
     });
   }
-</script>
+let eventoInstalacion;
+
+const botonInstalar = document.getElementById("instalarApp");
+
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+
+  eventoInstalacion = event;
+  botonInstalar.style.display = "block";
+});
+
+botonInstalar.addEventListener("click", async () => {
+  if (!eventoInstalacion) return;
+
+  eventoInstalacion.prompt();
+
+  const resultado = await eventoInstalacion.userChoice;
+
+  if (resultado.outcome === "accepted") {
+    botonInstalar.style.display = "none";
+  }
+
+  eventoInstalacion = null;
+});
+
+window.addEventListener("appinstalled", () => {
+  botonInstalar.style.display = "none";
+  eventoInstalacion = null;
+});
+  </script>
 
 </body>
 </html>
