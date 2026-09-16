@@ -253,63 +253,65 @@ let nombreUsuario = localStorage.getItem("nombreUsuario") || "";
 
 inputNombre.value = nombreUsuario;
 
-  // Crear o recuperar ID del usuario
-let usuarioId = localStorage.getItem("usuarioId");
+  guardarNombre.addEventListener("click", async () => {
 
-if (!usuarioId) {
-  usuarioId =
-    "usuario_" +
-    Date.now() +
-    "_" +
-    Math.random().toString(36).substring(2, 8);
-
-  localStorage.setItem("usuarioId", usuarioId);
-}
-
-guardarNombre.addEventListener("click", async () => {
-
-  console.log("BOTÓN GUARDAR PRESIONADO");
-console.log("Nombre escrito:", inputNombre.value);
-console.log("usuarioId:", usuarioId);
-  
   const nombre = inputNombre.value.trim();
 
-  if (nombre === "") return;
+  if (nombre === "") {
+    alert("Escribí tu nombre.");
+    return;
+  }
 
   nombreUsuario = nombre;
 
-  localStorage.setItem(
-    "nombreUsuario",
-    nombre
-  );
+  // Guardar primero en el navegador
+  localStorage.setItem("nombreUsuario", nombreUsuario);
 
-  await set(
-    ref(
-      db,
-      "conversaciones/" +
-      usuarioId +
-      "/info"
-    ),
-    {
-      nombre: nombreUsuario,
-      usuarioId: usuarioId,
-      ultimaActividad: Date.now()
-    }
-  );
-
-  await set(
-    ref(
-      db,
-      "conversaciones/" +
-      usuarioId +
-      "/ultimoMensaje"
-    ),
-    Date.now()
-  );
-
+  // Mostrar inmediatamente que quedó guardado
+  inputNombre.value = nombreUsuario;
   inputNombre.disabled = true;
-
   guardarNombre.textContent = "✓";
+
+  console.log("Nombre guardado:", nombreUsuario);
+  console.log("Usuario ID:", usuarioId);
+
+  try {
+
+    await set(
+      ref(
+        db,
+        "conversaciones/" +
+        usuarioId +
+        "/info"
+      ),
+      {
+        nombre: nombreUsuario,
+        usuarioId: usuarioId,
+        ultimaActividad: Date.now()
+      }
+    );
+
+    await set(
+      ref(
+        db,
+        "conversaciones/" +
+        usuarioId +
+        "/ultimoMensaje"
+      ),
+      Date.now()
+    );
+
+    console.log("Nombre guardado correctamente en Firebase");
+
+  } catch (error) {
+
+    console.error("ERROR AL GUARDAR NOMBRE:", error);
+
+    alert(
+      "El nombre quedó guardado en el navegador, pero Firebase dio un error: " +
+      error.message
+    );
+  }
 
 });
 
