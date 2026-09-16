@@ -635,11 +635,36 @@ if (datos.tipo === "admin") {
 
  if (datos.archivo === true && datos.archivoUrl) {
 
+   if (
+  datos.archivoTipo &&
+  datos.archivoTipo.startsWith("image/")
+) {
+
+  const imagen = document.createElement("img");
+
+  imagen.src = datos.archivoUrl;
+  imagen.alt = datos.archivoNombre || "Imagen";
+
+  imagen.style.maxWidth = "100%";
+  imagen.style.maxHeight = "300px";
+  imagen.style.borderRadius = "8px";
+  imagen.style.cursor = "pointer";
+  imagen.style.display = "block";
+
+  imagen.addEventListener("click", () => {
+    window.open(datos.archivoUrl, "_blank");
+  });
+
+  mensaje.appendChild(imagen);
+
+} else {
+
   const enlace = document.createElement("a");
 
   enlace.href = datos.archivoUrl;
   enlace.target = "_blank";
   enlace.rel = "noopener noreferrer";
+
   enlace.textContent =
     "📎 " + (datos.archivoNombre || "Abrir archivo");
 
@@ -650,6 +675,7 @@ if (datos.tipo === "admin") {
   enlace.style.textDecoration = "none";
 
   mensaje.appendChild(enlace);
+}
 
 } else {
 
