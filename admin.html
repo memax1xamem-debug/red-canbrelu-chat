@@ -1412,15 +1412,33 @@ function mostrarMensaje(datos, mensajeId) {
   }
 
 
-  // TEXTO
+// TEXTO O ARCHIVO
 
-  const texto =
-    document.createElement("span");
+const texto = document.createElement("span");
 
-  texto.textContent =
-    datos.texto || "";
+if (datos.archivo === true && datos.archivoUrl) {
 
+  const enlace = document.createElement("a");
 
+  enlace.href = datos.archivoUrl;
+  enlace.target = "_blank";
+  enlace.rel = "noopener noreferrer";
+
+  enlace.textContent =
+    "📎 " + (datos.archivoNombre || "Abrir archivo");
+
+  enlace.style.color = "#075e54";
+  enlace.style.fontWeight = "bold";
+  enlace.style.textDecoration = "none";
+
+  texto.appendChild(enlace);
+
+} else {
+
+  texto.textContent = datos.texto || "";
+
+}
+  
   // HORA
 
   const hora =
