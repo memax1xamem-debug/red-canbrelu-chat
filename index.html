@@ -491,10 +491,6 @@ async function enviarMensaje() {
 
   if (texto === "") return;
 
-console.log("Intentando enviar:", texto);
-console.log("Nombre:", nombreUsuario);
-console.log("Usuario ID:", usuarioId);
-  
   if (nombreUsuario === "") {
     alert("Primero escribí tu nombre y guardalo.");
     return;
@@ -502,73 +498,38 @@ console.log("Usuario ID:", usuarioId);
 
   try {
 
-    await set(
-      ref(
-        db,
-        "conversaciones/" +
-        usuarioId +
-        "/info"
-      ),
-      {
-        nombre: nombreUsuario,
-        usuarioId: usuarioId,
-        ultimaActividad: Date.now()
-      }
+    console.log("1 - Empezando envío");
+
+    const mensajesRef = ref(
+      db,
+      "conversaciones/" +
+      usuarioId +
+      "/mensajes"
     );
 
- await push(
-  ref(
-    db,
-    "conversaciones/" +
-    usuarioId +
-    "/mensajes"
-  ),
-  {
-    texto: texto,
-    fecha: Date.now(),
-    usuarioId: usuarioId,
-    nombre: nombreUsuario,
-    tipo: "cliente",
-    leido: false
-  }
-);
-    
-    await set(
-      ref(
-        db,
-        "conversaciones/" +
-        usuarioId +
-        "/ultimoMensaje"
-      ),
-      Date.now()
-    );
+    await push(mensajesRef, {
+      texto: texto,
+      fecha: Date.now(),
+      usuarioId: usuarioId,
+      nombre: nombreUsuario,
+      tipo: "cliente",
+      leido: false
+    });
 
-    await set(
-      ref(
-        db,
-        "conversaciones/" +
-        usuarioId +
-        "/ultimoTexto"
-      ),
-      texto
-    );
+    console.log("2 - MENSAJE ENVIADO");
 
-  await set(escribiendoRef, false);
-
-input.value = "";
-input.focus();
+    input.value = "";
+    input.focus();
 
   } catch (error) {
 
-    console.error("Error Firebase:", error);
+    console.error("ERROR AL ENVIAR:", error);
 
     alert(
-      "Error al enviar: " +
+      "Error al enviar mensaje: " +
       error.message
     );
-
   }
-
 }
 
 // Botón enviar
