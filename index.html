@@ -480,6 +480,10 @@ async function enviarMensaje() {
 
   if (texto === "") return;
 
+console.log("Intentando enviar:", texto);
+console.log("Nombre:", nombreUsuario);
+console.log("Usuario ID:", usuarioId);
+  
   if (nombreUsuario === "") {
     alert("Primero escribí tu nombre y guardalo.");
     return;
