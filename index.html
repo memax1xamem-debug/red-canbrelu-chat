@@ -267,7 +267,8 @@ import {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const storage = getStorage(app);
-
+const messaging = getMessaging(app);
+  
   const input = document.getElementById("mensaje");
   const lista = document.getElementById("mensajes");
   const boton = document.getElementById("botonEnviar");
