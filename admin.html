@@ -1228,8 +1228,9 @@ cancelarEstado = onValue(
   
   // Habilitar campo
 
-  input.disabled = false;
-  botonEnviar.disabled = false;
+ input.disabled = false;
+botonEnviar.disabled = false;
+botonArchivoAdmin.disabled = false;
 
   input.focus();
 
@@ -1619,6 +1620,10 @@ input.addEventListener("input", () => {
 
 });
 
+botonArchivoAdmin.addEventListener("click", () => {
+  archivoAdmin.click();
+});
+  
 // ========================================
 // BOTÓN ENVIAR
 // ========================================
