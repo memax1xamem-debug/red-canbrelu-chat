@@ -1,4 +1,4 @@
-const CACHE_NAME = "canbrelu-chat-v1";
+const CACHE_NAME = "canbrelu-chat-v2";
 
 const ARCHIVOS = [
   "./",
