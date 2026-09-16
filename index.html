@@ -876,6 +876,36 @@ botonInstalar.addEventListener("click", async () => {
 
 });
 
+    // ========================================
+// INSTALACIÓN EN IPHONE / IPAD
+// ========================================
+
+const esIOS =
+  /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+
+const estaInstalada =
+  window.matchMedia("(display-mode: standalone)").matches ||
+  window.navigator.standalone === true;
+
+if (esIOS && !estaInstalada) {
+
+  botonInstalar.style.display = "block";
+
+  botonInstalar.addEventListener("click", () => {
+
+    if (!eventoInstalacion) {
+      alert(
+        "Para instalar Red Canbrelú Chat en tu iPhone:\n\n" +
+        "1. Tocá el botón Compartir de Safari.\n" +
+        "2. Elegí «Agregar a pantalla de inicio».\n" +
+        "3. Tocá «Agregar»."
+      );
+    }
+
+  });
+
+}
+
 window.addEventListener("appinstalled", () => {
   botonInstalar.style.display = "none";
   eventoInstalacion = null;
