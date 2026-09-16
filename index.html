@@ -678,6 +678,25 @@ if (datos.tipo === "admin") {
   mensaje.appendChild(enlace);
 }
 
+if (datos.archivoTamano) {
+
+  const tamano = document.createElement("span");
+
+  const mb = datos.archivoTamano / (1024 * 1024);
+
+  tamano.textContent =
+    mb >= 1
+      ? mb.toFixed(2) + " MB"
+      : (datos.archivoTamano / 1024).toFixed(1) + " KB";
+
+  tamano.style.display = "block";
+  tamano.style.fontSize = "11px";
+  tamano.style.color = "#777";
+  tamano.style.marginTop = "3px";
+
+  mensaje.appendChild(tamano);
+}
+   
 } else {
 
   const texto = document.createElement("span");
