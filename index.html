@@ -528,6 +528,26 @@ async function enviarMensaje() {
       leido: false
     });
 
+await set(
+  ref(
+    db,
+    "conversaciones/" +
+    usuarioId +
+    "/ultimoMensaje"
+  ),
+  Date.now()
+);
+
+await set(
+  ref(
+    db,
+    "conversaciones/" +
+    usuarioId +
+    "/ultimoTexto"
+  ),
+  texto
+);
+    
     console.log("2 - MENSAJE ENVIADO");
 
     input.value = "";
