@@ -850,17 +850,30 @@ window.addEventListener("beforeinstallprompt", (event) => {
 });
 
 botonInstalar.addEventListener("click", async () => {
-  if (!eventoInstalacion) return;
 
-  eventoInstalacion.prompt();
+  if (eventoInstalacion) {
 
-  const resultado = await eventoInstalacion.userChoice;
+    eventoInstalacion.prompt();
 
-  if (resultado.outcome === "accepted") {
-    botonInstalar.style.display = "none";
+    const resultado = await eventoInstalacion.userChoice;
+
+    if (resultado.outcome === "accepted") {
+      botonInstalar.style.display = "none";
+    }
+
+    eventoInstalacion = null;
+
+  } else {
+
+    alert(
+      "Para instalar Red Canbrelú Chat:\n\n" +
+      "1. Tocá los tres puntos ⋮ de Chrome.\n" +
+      "2. Elegí «Instalar aplicación» o «Agregar a pantalla principal».\n" +
+      "3. Confirmá la instalación."
+    );
+
   }
 
-  eventoInstalacion = null;
 });
 
 window.addEventListener("appinstalled", () => {
