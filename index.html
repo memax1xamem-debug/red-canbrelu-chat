@@ -255,6 +255,10 @@ inputNombre.value = nombreUsuario;
 
 guardarNombre.addEventListener("click", async () => {
 
+  console.log("BOTÓN GUARDAR PRESIONADO");
+console.log("Nombre escrito:", inputNombre.value);
+console.log("usuarioId:", usuarioId);
+  
   const nombre = inputNombre.value.trim();
 
   if (nombre === "") return;
