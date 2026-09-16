@@ -410,29 +410,37 @@ async function enviarArchivo() {
     return;
   }
 
-  const nombreSeguro =
-    Date.now() + "_" + archivo.name;
-
-  const referenciaArchivo =
-    storageRef(
-      storage,
-      "archivos/" +
-      usuarioId +
-      "/" +
-      nombreSeguro
-    );
+  if (nombreUsuario === "") {
+    alert("Primero escribí tu nombre y guardalo.");
+    archivoInput.value = "";
+    return;
+  }
 
   try {
 
-    await uploadBytes(
-      referenciaArchivo,
-      archivo
+    const formData = new FormData();
+
+    formData.append("file", archivo);
+    formData.append("upload_preset", "chat_archivos");
+
+    const respuesta = await fetch(
+      "https://api.cloudinary.com/v1_1/qgmjx1vh/auto/upload",
+      {
+        method: "POST",
+        body: formData
+      }
     );
 
-    const url =
-      await getDownloadURL(
-        referenciaArchivo
+    const resultado = await respuesta.json();
+
+    if (!respuesta.ok) {
+      throw new Error(
+        resultado?.error?.message ||
+        "No se pudo subir el archivo."
       );
+    }
+
+    const url = resultado.secure_url;
 
     await push(
       ref(
@@ -444,6 +452,7 @@ async function enviarArchivo() {
       {
         tipo: "cliente",
         nombre: nombreUsuario,
+        usuarioId: usuarioId,
         fecha: Date.now(),
         leido: false,
 
@@ -456,41 +465,42 @@ async function enviarArchivo() {
       }
     );
 
-await set(
-  ref(
-    db,
-    "conversaciones/" +
-    usuarioId +
-    "/ultimoMensaje"
-  ),
-  Date.now()
-);
+    await set(
+      ref(
+        db,
+        "conversaciones/" +
+        usuarioId +
+        "/ultimoMensaje"
+      ),
+      Date.now()
+    );
 
-await set(
-  ref(
-    db,
-    "conversaciones/" +
-    usuarioId +
-    "/ultimoTexto"
-  ),
-  "📎 " + archivo.name
-);
-    
-   archivoInput.value = "";
+    await set(
+      ref(
+        db,
+        "conversaciones/" +
+        usuarioId +
+        "/ultimoTexto"
+      ),
+      "📎 " + archivo.name
+    );
 
-} catch (error) {
+    archivoInput.value = "";
 
-  console.error("ERROR STORAGE:", error);
+    console.log("ARCHIVO ENVIADO:", url);
 
-  alert(
-    "Error al subir: " +
-    error.code +
-    "\n" +
-    error.message
-  );
-}
+  } catch (error) {
 
-} // CIERRA enviarArchivo()
+    console.error("ERROR AL SUBIR ARCHIVO:", error);
+
+    alert(
+      "Error al subir archivo: " +
+      error.message
+    );
+
+    archivoInput.value = "";
+  }
+}} // CIERRA enviarArchivo()
 
 archivoInput.addEventListener(
   "change",
