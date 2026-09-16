@@ -1510,6 +1510,99 @@ if (datos.archivo === true && datos.archivoUrl) {
 
 }
 
+async function enviarArchivoAdmin() {
+
+  const archivo = archivoAdmin.files[0];
+
+  if (!archivo || !usuarioSeleccionado) return;
+
+  if (archivo.size > 10 * 1024 * 1024) {
+    alert("El archivo supera los 10 MB.");
+    archivoAdmin.value = "";
+    return;
+  }
+
+  try {
+
+    const formData = new FormData();
+
+    formData.append("file", archivo);
+    formData.append("upload_preset", "chat_archivos");
+
+    const respuesta = await fetch(
+      "https://api.cloudinary.com/v1_1/qqmjx1vh/auto/upload",
+      {
+        method: "POST",
+        body: formData
+      }
+    );
+
+    const resultado = await respuesta.json();
+
+    if (!respuesta.ok) {
+      throw new Error(
+        resultado?.error?.message ||
+        "No se pudo subir el archivo."
+      );
+    }
+
+    const url = resultado.secure_url;
+
+    await push(
+      ref(
+        db,
+        "conversaciones/" +
+        usuarioSeleccionado +
+        "/mensajes"
+      ),
+      {
+        tipo: "admin",
+        nombre: "Administrador",
+        fecha: Date.now(),
+        leido: false,
+        archivo: true,
+        archivoNombre: archivo.name,
+        archivoTipo: archivo.type,
+        archivoUrl: url,
+        texto: ""
+      }
+    );
+
+    await set(
+      ref(
+        db,
+        "conversaciones/" +
+        usuarioSeleccionado +
+        "/ultimoMensaje"
+      ),
+      Date.now()
+    );
+
+    await set(
+      ref(
+        db,
+        "conversaciones/" +
+        usuarioSeleccionado +
+        "/ultimoTexto"
+      ),
+      "Vos: 📎 " + archivo.name
+    );
+
+    archivoAdmin.value = "";
+
+  } catch (error) {
+
+    console.error("ERROR AL SUBIR ARCHIVO:", error);
+
+    alert(
+      "Error al subir archivo: " +
+      error.message
+    );
+
+    archivoAdmin.value = "";
+  }
+}
+  
 // ========================================
 // ENVIAR MENSAJE
 // ========================================
