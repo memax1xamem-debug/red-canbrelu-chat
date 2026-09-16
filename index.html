@@ -295,6 +295,8 @@ const guardarNombre = document.getElementById("guardarNombre");
 
 const botonArchivo =
   document.getElementById("botonArchivo");
+const botonNotificaciones =
+  document.getElementById("activarNotificaciones");
   
 let nombreUsuario = localStorage.getItem("nombreUsuario") || "";
 
@@ -311,6 +313,62 @@ if (!usuarioId) {
 
   localStorage.setItem("usuarioId", usuarioId);
 }
+
+botonNotificaciones.addEventListener("click", async () => {
+
+  try {
+
+    const permiso = await Notification.requestPermission();
+
+    if (permiso !== "granted") {
+      alert("No se habilitaron las notificaciones.");
+      return;
+    }
+
+    const registroSW =
+      await navigator.serviceWorker.ready;
+
+    const token = await getToken(messaging, {
+      vapidKey: VAPID_KEY,
+      serviceWorkerRegistration: registroSW
+    });
+
+    if (!token) {
+      alert("No se pudo obtener el token de notificaciones.");
+      return;
+    }
+
+    await set(
+      ref(
+        db,
+        "conversaciones/" +
+        usuarioId +
+        "/fcmToken"
+      ),
+      token
+    );
+
+    botonNotificaciones.textContent =
+      "🔔 Notificaciones activadas";
+
+    botonNotificaciones.disabled = true;
+
+    console.log("TOKEN FCM GUARDADO");
+
+  } catch (error) {
+
+    console.error(
+      "ERROR NOTIFICACIONES:",
+      error
+    );
+
+    alert(
+      "Error al activar notificaciones: " +
+      error.message
+    );
+  }
+
+});
   
   guardarNombre.addEventListener("click", async () => {
 
