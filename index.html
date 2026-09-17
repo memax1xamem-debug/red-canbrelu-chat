@@ -314,6 +314,74 @@ if (!usuarioId) {
   localStorage.setItem("usuarioId", usuarioId);
 }
 
+async function comprobarNotificaciones() {
+
+  if (!("Notification" in window)) {
+    botonNotificaciones.textContent =
+      "🔕 Notificaciones no disponibles";
+    botonNotificaciones.disabled = true;
+    return;
+  }
+
+  if (Notification.permission === "granted") {
+
+    botonNotificaciones.textContent =
+      "🔔 Notificaciones activadas";
+
+    botonNotificaciones.disabled = true;
+
+    try {
+
+      const registroSW =
+        await navigator.serviceWorker.ready;
+
+      const token = await getToken(messaging, {
+        vapidKey: VAPID_KEY,
+        serviceWorkerRegistration: registroSW
+      });
+
+      if (token) {
+
+        await set(
+          ref(
+            db,
+            "conversaciones/" +
+            usuarioId +
+            "/fcmToken"
+          ),
+          token
+        );
+
+        console.log("TOKEN FCM ACTUALIZADO");
+      }
+
+    } catch (error) {
+      console.error(
+        "Error comprobando notificaciones:",
+        error
+      );
+    }
+
+    return;
+  }
+
+  if (Notification.permission === "denied") {
+
+    botonNotificaciones.textContent =
+      "🔕 Notificaciones bloqueadas";
+
+    botonNotificaciones.disabled = true;
+    return;
+  }
+
+  botonNotificaciones.textContent =
+    "🔔 Activar notificaciones";
+
+  botonNotificaciones.disabled = false;
+}
+
+comprobarNotificaciones();
+  
 botonNotificaciones.addEventListener("click", async () => {
 
   try {
