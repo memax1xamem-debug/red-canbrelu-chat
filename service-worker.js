@@ -20,18 +20,18 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage((payload) => {
   console.log("Notificación recibida:", payload);
 
-  const titulo =
-    payload.notification?.title ||
-    "Red Canbrelú Chat";
+ const titulo =
+  payload.data?.title ||
+  "Red Canbrelú Chat";
 
-  const opciones = {
-    body:
-      payload.notification?.body ||
-      "Tenés un nuevo mensaje",
-    icon: "./icon-192.png",
-    badge: "./icon-192.png"
-  };
-
+const opciones = {
+  body:
+    payload.data?.body ||
+    "Tenés un nuevo mensaje",
+  icon: "./icon-192.png",
+  badge: "./icon-192.png"
+};
+  
   return self.registration.showNotification(
     titulo,
     opciones
