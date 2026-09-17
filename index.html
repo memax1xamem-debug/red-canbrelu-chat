@@ -314,6 +314,34 @@ if (!usuarioId) {
   localStorage.setItem("usuarioId", usuarioId);
 }
 
+// ========================================
+// ABRIR CHAT DESDE UNA NOTIFICACIÓN
+// ========================================
+
+const parametrosURL = new URLSearchParams(window.location.search);
+const chatNotificacion = parametrosURL.get("chat");
+
+if (chatNotificacion) {
+
+  console.log(
+    "Chat abierto desde notificación:",
+    chatNotificacion
+  );
+
+  if (chatNotificacion === usuarioId) {
+    console.log(
+      "La notificación corresponde a este usuario"
+    );
+  }
+
+  // Limpiar ?chat=... de la dirección
+  window.history.replaceState(
+    {},
+    document.title,
+    window.location.pathname
+  );
+}
+  
 async function comprobarNotificaciones() {
 
   if (!("Notification" in window)) {
