@@ -25,12 +25,39 @@ const titulo =
   "Red Canbrelú Chat";
 
 const opciones = {
-  body:
-    payload.data?.body ||
-    "Tenés un nuevo mensaje",
+  body: payload.data?.body || "Tenés un nuevo mensaje",
   icon: "./icon-192.png",
-  badge: "./icon-192.png"
+  badge: "./icon-192.png",
+  data: {
+    url: "./"
+  }
 };
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+
+  const url = event.notification.data?.url || "./";
+
+  event.waitUntil(
+    clients.matchAll({
+      type: "window",
+      includeUncontrolled: true
+    }).then((ventanas) => {
+
+      // Si Red Canbrelú ya está abierto, lo pone en primer plano
+      for (const ventana of ventanas) {
+        if ("focus" in ventana) {
+          return ventana.focus();
+        }
+      }
+
+      // Si está cerrado, abre la aplicación
+      if (clients.openWindow) {
+        return clients.openWindow(url);
+      }
+    })
+  );
+});
   
   return self.registration.showNotification(
     titulo,
