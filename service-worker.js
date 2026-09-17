@@ -20,7 +20,7 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage((payload) => {
   console.log("Notificación recibida:", payload);
 
- const titulo =
+const titulo =
   payload.data?.title ||
   "Red Canbrelú Chat";
 
