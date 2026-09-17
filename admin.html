@@ -1652,6 +1652,72 @@ async function enviarArchivoAdmin() {
 // ENVIAR MENSAJE
 // ========================================
 
+// ========================================
+// ENVIAR NOTIFICACIÓN PUSH AL CLIENTE
+// ========================================
+
+async function enviarNotificacionPush(usuarioId, texto) {
+
+  try {
+
+    const tokenSnapshot = await new Promise((resolve) => {
+
+      onValue(
+        ref(
+          db,
+          "conversaciones/" +
+          usuarioId +
+          "/fcmToken"
+        ),
+        resolve,
+        { onlyOnce: true }
+      );
+
+    });
+
+    const token = tokenSnapshot.val();
+
+    if (!token) {
+      console.log(
+        "El cliente no tiene token FCM"
+      );
+      return;
+    }
+
+    const respuesta = await fetch(
+      "https://canbrelu-notificaciones.memax1xamem.workers.dev/",
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+          token: token,
+          titulo: "Red Canbrelú Chat",
+          mensaje: texto
+        })
+      }
+    );
+
+    const resultado = await respuesta.json();
+
+    console.log(
+      "NOTIFICACIÓN PUSH:",
+      resultado
+    );
+
+  } catch (error) {
+
+    console.error(
+      "ERROR NOTIFICACIÓN PUSH:",
+      error
+    );
+
+  }
+}
+  
 async function enviarMensaje() {
 
   if (!usuarioSeleccionado) {
@@ -1712,6 +1778,11 @@ set(
     "/ultimoTexto"
   ),
   "Vos: " + texto
+);
+
+    await enviarNotificacionPush(
+  usuarioSeleccionado,
+  texto
 );
     
   } catch (error) {
