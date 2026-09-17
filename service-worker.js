@@ -37,7 +37,13 @@ const opciones = {
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
 
-  const url = event.notification.data?.url || "./";
+const usuarioId = event.notification.data?.usuarioId || "";
+
+let url = event.notification.data?.url || "./";
+
+if (usuarioId) {
+  url += "?chat=" + encodeURIComponent(usuarioId);
+}
 
   event.waitUntil(
     clients.matchAll({
