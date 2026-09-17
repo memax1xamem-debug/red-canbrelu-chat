@@ -1,3 +1,43 @@
+importScripts(
+  "https://www.gstatic.com/firebasejs/12.2.1/firebase-app-compat.js"
+);
+
+importScripts(
+  "https://www.gstatic.com/firebasejs/12.2.1/firebase-messaging-compat.js"
+);
+
+firebase.initializeApp({
+  apiKey: "AIzaSyCKh_AHfvDSlAMxs1Kl-hvQse6Dj1g6sBo",
+  authDomain: "red-canbrelu-chat.firebaseapp.com",
+  projectId: "red-canbrelu-chat",
+  storageBucket: "red-canbrelu-chat.firebasestorage.app",
+  messagingSenderId: "733334279827",
+  appId: "1:733334279827:web:7fdec02211ae5818ae9f66"
+});
+
+const messaging = firebase.messaging();
+
+messaging.onBackgroundMessage((payload) => {
+  console.log("Notificación recibida:", payload);
+
+  const titulo =
+    payload.notification?.title ||
+    "Red Canbrelú Chat";
+
+  const opciones = {
+    body:
+      payload.notification?.body ||
+      "Tenés un nuevo mensaje",
+    icon: "./icon-192.png",
+    badge: "./icon-192.png"
+  };
+
+  return self.registration.showNotification(
+    titulo,
+    opciones
+  );
+});
+
 const CACHE_NAME = "canbrelu-chat-v2";
 
 const ARCHIVOS = [
