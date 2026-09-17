@@ -1572,15 +1572,6 @@ async function enviarArchivoAdmin() {
 
     formData.append("file", archivo);
     formData.append("upload_preset", "chat_archivos");
-
-const usuarioAdmin = auth.currentUser;
-
-if (!usuarioAdmin) {
-  console.error("Administrador no autenticado");
-  return;
-}
-
-const idToken = await usuarioAdmin.getIdToken();
     
     const respuesta = await fetch(
       "https://api.cloudinary.com/v1_1/qqmjx1vh/auto/upload",
@@ -1693,6 +1684,15 @@ async function enviarNotificacionPush(usuarioId, texto) {
       return;
     }
 
+const usuarioAdmin = auth.currentUser;
+
+if (!usuarioAdmin) {
+  console.error("Administrador no autenticado");
+  return;
+}
+
+const idToken = await usuarioAdmin.getIdToken();
+    
     const respuesta = await fetch(
       "https://canbrelu-notificaciones.memax1xamem.workers.dev/",
       {
