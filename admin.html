@@ -1704,10 +1704,11 @@ const idToken = await usuarioAdmin.getIdToken();
 },
 
         body: JSON.stringify({
-          token: token,
-          titulo: "Red Canbrelú Chat",
-          mensaje: texto
-        })
+  token: token,
+  titulo: "Red Canbrelú Chat",
+  mensaje: texto,
+  usuarioId: usuarioId
+})
       }
     );
 
