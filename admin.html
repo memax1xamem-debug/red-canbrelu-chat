@@ -2332,6 +2332,30 @@ document
     }
 
   });
+
+// ========================================
+// CERRAR FICHA DEL CLIENTE
+// ========================================
+
+document
+  .getElementById("cerrarFicha")
+  .addEventListener("click", () => {
+
+    document
+      .getElementById("modalFicha")
+      .classList.remove("activa");
+
+  });
+
+  document
+  .getElementById("modalFicha")
+  .addEventListener("click", (event) => {
+
+    if (event.target.id === "modalFicha") {
+      event.currentTarget.classList.remove("activa");
+    }
+
+  });
   
 </script>
 
