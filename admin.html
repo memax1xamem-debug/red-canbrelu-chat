@@ -813,6 +813,54 @@ editarNombre.style.background = "transparent";
 editarNombre.style.cursor = "pointer";
 editarNombre.style.fontSize = "14px";
 editarNombre.style.marginLeft = "6px";
+
+editarNombre.addEventListener("click", async (event) => {
+
+  event.stopPropagation();
+
+  const nombreActual =
+    info.nombre || "Usuario";
+
+  const nuevoNombre = prompt(
+    "Nuevo nombre del cliente:",
+    nombreActual
+  );
+
+  if (nuevoNombre === null) return;
+
+  const nombreLimpio =
+    nuevoNombre.trim();
+
+  if (nombreLimpio === "") {
+    alert("El nombre no puede quedar vacío.");
+    return;
+  }
+
+  try {
+
+    await set(
+      ref(
+        db,
+        "conversaciones/" +
+        usuarioId +
+        "/info/nombre"
+      ),
+      nombreLimpio
+    );
+
+    nombre.textContent = nombreLimpio;
+
+  } catch (error) {
+
+    console.error(
+      "Error al cambiar nombre:",
+      error
+    );
+
+    alert("No se pudo cambiar el nombre.");
+  }
+
+});
       
 // ESTADO DEL CLIENTE EN LA LISTA
 
