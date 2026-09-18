@@ -53,15 +53,20 @@ if (usuarioId) {
 
       // Si Red Canbrelú ya está abierto,
 // lo lleva al chat correspondiente y lo pone en primer plano
-for (const ventana of ventanas) {
-  if ("navigate" in ventana) {
-    await ventana.navigate(url);
-  }
+
+      for (const ventana of ventanas) {
+
+  // Si la app ya está abierta,
+  // avisarle qué chat debe abrir
+  ventana.postMessage({
+    tipo: "ABRIR_CHAT",
+    usuarioId: usuarioId
+  });
 
   if ("focus" in ventana) {
     return ventana.focus();
   }
-}
+}    
       // Si está cerrado, abre la aplicación
       if (clients.openWindow) {
         return clients.openWindow(url);
