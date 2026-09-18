@@ -753,6 +753,8 @@ function actualizarNotificacion(usuarioId) {
 
         notificacion.classList.add("oculta");
 
+        cliente.classList.remove("con-pendientes");
+        
         if (nombre) {
         nombre.style.color = "#222";
         nombre.style.fontWeight = "bold";
