@@ -1054,7 +1054,17 @@ ultimo.textContent =
 
         listaClientes.appendChild(cliente);
 
-
+// ABRIR AUTOMÁTICAMENTE EL CHAT DESDE UNA NOTIFICACIÓN
+if (
+  chatDesdeNotificacion &&
+  usuarioId === chatDesdeNotificacion
+) {
+  abrirConversacion(
+    usuarioId,
+    info.nombre || "Usuario"
+  );
+}
+      
         // Activar avisos para ese cliente
 
         activarNotificaciones(usuarioId);
