@@ -18,67 +18,79 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
+
   console.log("Notificación recibida:", payload);
 
-const titulo =
-  payload.data?.title ||
-  "Red Canbrelú Chat";
+  const titulo =
+    payload.data?.title ||
+    "Red Canbrelú Chat";
 
-const opciones = {
-  body: payload.data?.body || "Tenés un nuevo mensaje",
-  icon: "./icon-192.png",
-  badge: "./icon-192.png",
-  data: {
-    url: "./",
-    usuarioId: payload.data?.usuarioId || ""
-  }
-};
-  
+  const opciones = {
+    body: payload.data?.body || "Tenés un nuevo mensaje",
+    icon: "./icon-192.png",
+    badge: "./icon-192.png",
+    data: {
+      url: "./",
+      usuarioId: payload.data?.usuarioId || ""
+    }
+  };
+
+  return self.registration.showNotification(
+    titulo,
+    opciones
+  );
+
+});
+
+
+// ========================================
+// TOCAR NOTIFICACIÓN
+// ========================================
+
 self.addEventListener("notificationclick", (event) => {
+
   event.notification.close();
 
-const usuarioId = event.notification.data?.usuarioId || "";
+  const usuarioId =
+    event.notification.data?.usuarioId || "";
 
-let url = event.notification.data?.url || "./";
+  let url =
+    event.notification.data?.url || "./";
 
-if (usuarioId) {
-  url += "?chat=" + encodeURIComponent(usuarioId);
-}
+  if (usuarioId) {
+    url += "?chat=" + encodeURIComponent(usuarioId);
+  }
 
   event.waitUntil(
+
     clients.matchAll({
       type: "window",
       includeUncontrolled: true
     }).then(async (ventanas) => {
 
-      // Si Red Canbrelú ya está abierto,
-// lo lleva al chat correspondiente y lo pone en primer plano
-
+      // APP YA ABIERTA
       for (const ventana of ventanas) {
 
-  // Si la app ya está abierta,
-  // avisarle qué chat debe abrir
-  ventana.postMessage({
-    tipo: "ABRIR_CHAT",
-    usuarioId: usuarioId
-  });
+        ventana.postMessage({
+          tipo: "ABRIR_CHAT",
+          usuarioId: usuarioId
+        });
 
-  if ("focus" in ventana) {
-    return ventana.focus();
-  }
-}    
-      // Si está cerrado, abre la aplicación
+        if ("focus" in ventana) {
+          return ventana.focus();
+        }
+
+      }
+
+      // APP CERRADA
       if (clients.openWindow) {
         return clients.openWindow(url);
       }
+
     })
+
   );
-});
-  
-  return self.registration.showNotification(
-    titulo,
-    opciones
-  );
+
 });
 
 const CACHE_NAME = "canbrelu-chat-v2";
