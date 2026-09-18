@@ -2242,6 +2242,96 @@ if ("serviceWorker" in navigator) {
   );
 
 }
+
+// ========================================
+// GUARDAR FICHA DEL CLIENTE
+// ========================================
+
+document
+  .getElementById("guardarFicha")
+  .addEventListener("click", async () => {
+
+    const modalFicha =
+      document.getElementById("modalFicha");
+
+    const usuarioId =
+      modalFicha.dataset.usuarioId;
+
+    if (!usuarioId) return;
+
+    const nombre =
+      document
+        .getElementById("fichaNombre")
+        .value
+        .trim();
+
+    const telefono =
+      document
+        .getElementById("fichaTelefono")
+        .value
+        .trim();
+
+    const notas =
+      document
+        .getElementById("fichaNotas")
+        .value
+        .trim();
+
+    if (nombre === "") {
+      alert("El nombre no puede quedar vacío.");
+      return;
+    }
+
+    try {
+
+      await Promise.all([
+
+        set(
+          ref(
+            db,
+            "conversaciones/" +
+            usuarioId +
+            "/info/nombre"
+          ),
+          nombre
+        ),
+
+        set(
+          ref(
+            db,
+            "conversaciones/" +
+            usuarioId +
+            "/info/telefono"
+          ),
+          telefono
+        ),
+
+        set(
+          ref(
+            db,
+            "conversaciones/" +
+            usuarioId +
+            "/info/notas"
+          ),
+          notas
+        )
+
+      ]);
+
+      modalFicha.classList.remove("activa");
+
+    } catch (error) {
+
+      console.error(
+        "Error al guardar ficha:",
+        error
+      );
+
+      alert("No se pudo guardar la ficha.");
+
+    }
+
+  });
   
 </script>
 
