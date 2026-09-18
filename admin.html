@@ -1947,9 +1947,9 @@ const snapshotUltimo = await get(
   query(
     ref(
       db,
-      "conversaciones/" +
-      usuarioSeleccionado +
-      "/mensajes"
+     "conversaciones/" +
+usuarioIdEliminar +
+"/mensajes"
     ),
     orderByChild("fecha"),
     limitToLast(1)
