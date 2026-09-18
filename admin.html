@@ -1940,6 +1940,61 @@ buscarCliente.addEventListener("input", () => {
     });
 
 });
+
+  // ========================================
+// ABRIR CHAT DESDE NOTIFICACIÓN
+// SIN RECARGAR EL ADMINISTRADOR
+// ========================================
+
+if ("serviceWorker" in navigator) {
+
+  navigator.serviceWorker.addEventListener(
+    "message",
+    (event) => {
+
+      if (
+        event.data?.tipo !== "ABRIR_CHAT" ||
+        !event.data?.usuarioId
+      ) {
+        return;
+      }
+
+      const usuarioId = event.data.usuarioId;
+
+      const cliente = [...document.querySelectorAll(".cliente")]
+        .find(elemento => {
+
+          const id =
+            elemento.querySelector(".cliente-id");
+
+          return (
+            id &&
+            id.textContent === usuarioId
+          );
+        });
+
+      if (!cliente) {
+        console.log(
+          "No se encontró el cliente:",
+          usuarioId
+        );
+        return;
+      }
+
+      const nombre =
+        cliente.querySelector(".cliente-nombre")
+          ?.textContent || "Usuario";
+
+      abrirConversacion(
+        usuarioId,
+        nombre
+      );
+
+    }
+  );
+
+}
+  
 </script>
 
 </body>
