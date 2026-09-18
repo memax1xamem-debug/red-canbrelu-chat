@@ -971,59 +971,33 @@ botonFicha.addEventListener("click", (event) => {
 
   event.stopPropagation();
 
-  const telefonoActual =
+  const modalFicha =
+    document.getElementById("modalFicha");
+
+  const fichaNombre =
+    document.getElementById("fichaNombre");
+
+  const fichaTelefono =
+    document.getElementById("fichaTelefono");
+
+  const fichaNotas =
+    document.getElementById("fichaNotas");
+
+  fichaNombre.value =
+    info.nombre || "";
+
+  fichaTelefono.value =
     info.telefono || "";
 
-  const notasActuales =
+  fichaNotas.value =
     info.notas || "";
 
-  const telefono = prompt(
-    "Teléfono del cliente:",
-    telefonoActual
-  );
+  modalFicha.dataset.usuarioId =
+    usuarioId;
 
-  if (telefono === null) return;
+  modalFicha.classList.add("activa");
 
-  const notas = prompt(
-    "Notas internas del cliente:",
-    notasActuales
-  );
-
-  if (notas === null) return;
-
-  Promise.all([
-    set(
-      ref(
-        db,
-        "conversaciones/" +
-        usuarioId +
-        "/info/telefono"
-      ),
-      telefono.trim()
-    ),
-
-    set(
-      ref(
-        db,
-        "conversaciones/" +
-        usuarioId +
-        "/info/notas"
-      ),
-      notas.trim()
-    )
-  ])
-  .then(() => {
-    alert("Ficha del cliente guardada.");
-  })
-  .catch((error) => {
-    console.error(
-      "Error al guardar ficha:",
-      error
-    );
-
-    alert("No se pudo guardar la ficha.");
-  });
-
+});
 });
       
 editarNombre.addEventListener("click", async (event) => {
