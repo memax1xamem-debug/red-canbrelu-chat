@@ -814,6 +814,19 @@ editarNombre.style.cursor = "pointer";
 editarNombre.style.fontSize = "14px";
 editarNombre.style.marginLeft = "6px";
 
+      // BOTÓN FICHA DEL CLIENTE
+const botonFicha =
+  document.createElement("button");
+
+botonFicha.textContent = "👤";
+botonFicha.title = "Ficha del cliente";
+
+botonFicha.style.border = "none";
+botonFicha.style.background = "transparent";
+botonFicha.style.cursor = "pointer";
+botonFicha.style.fontSize = "14px";
+botonFicha.style.marginLeft = "4px";
+      
 editarNombre.addEventListener("click", async (event) => {
 
   event.stopPropagation();
