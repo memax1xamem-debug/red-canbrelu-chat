@@ -1935,10 +1935,10 @@ const usuarioIdEliminar = usuarioSeleccionado;
 await remove(
   ref(
     db,
-    "conversaciones/" +
-    usuarioSeleccionado +
-    "/mensajes/" +
-    mensajeId
+  "conversaciones/" +
+usuarioIdEliminar +
+"/mensajes/" +
+mensajeId
   )
 );
 
