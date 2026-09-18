@@ -800,6 +800,19 @@ onValue(
 
         nombre.textContent =
           info.nombre || "Usuario";
+
+      // BOTÓN PARA EDITAR NOMBRE DEL CLIENTE
+const editarNombre =
+  document.createElement("button");
+
+editarNombre.textContent = "✏️";
+editarNombre.title = "Cambiar nombre";
+
+editarNombre.style.border = "none";
+editarNombre.style.background = "transparent";
+editarNombre.style.cursor = "pointer";
+editarNombre.style.fontSize = "14px";
+editarNombre.style.marginLeft = "6px";
       
 // ESTADO DEL CLIENTE EN LA LISTA
 
