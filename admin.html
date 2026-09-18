@@ -1930,18 +1930,108 @@ botonEliminar.addEventListener("click", async (event) => {
 
   try {
 
-    await remove(
+await remove(
+  ref(
+    db,
+    "conversaciones/" +
+    usuarioSeleccionado +
+    "/mensajes/" +
+    mensajeId
+  )
+);
+
+// BUSCAR EL NUEVO ÚLTIMO MENSAJE
+const snapshotUltimo = await get(
+  query(
+    ref(
+      db,
+      "conversaciones/" +
+      usuarioSeleccionado +
+      "/mensajes"
+    ),
+    orderByChild("fecha"),
+    limitToLast(1)
+  )
+);
+
+if (snapshotUltimo.exists()) {
+
+  let ultimoMensaje = null;
+
+  snapshotUltimo.forEach((snapshot) => {
+    ultimoMensaje = snapshot.val();
+  });
+
+  if (ultimoMensaje) {
+
+    let textoUltimo = "";
+
+    if (ultimoMensaje.archivo === true) {
+
+      textoUltimo =
+        ultimoMensaje.tipo === "admin"
+          ? "Vos: 📎 " +
+            (ultimoMensaje.archivoNombre || "Archivo")
+          : "📎 " +
+            (ultimoMensaje.archivoNombre || "Archivo");
+
+    } else {
+
+      textoUltimo =
+        ultimoMensaje.tipo === "admin"
+          ? "Vos: " + (ultimoMensaje.texto || "")
+          : (ultimoMensaje.texto || "");
+
+    }
+
+    await set(
       ref(
         db,
         "conversaciones/" +
         usuarioSeleccionado +
-        "/mensajes/" +
-        mensajeId
-      )
+        "/ultimoTexto"
+      ),
+      textoUltimo
     );
 
-    mensaje.remove();
+    await set(
+      ref(
+        db,
+        "conversaciones/" +
+        usuarioSeleccionado +
+        "/ultimoMensaje"
+      ),
+      ultimoMensaje.fecha || Date.now()
+    );
 
+  }
+
+} else {
+
+  await set(
+    ref(
+      db,
+      "conversaciones/" +
+      usuarioSeleccionado +
+      "/ultimoTexto"
+    ),
+    "Sin mensajes"
+  );
+
+  await set(
+    ref(
+      db,
+      "conversaciones/" +
+      usuarioSeleccionado +
+      "/ultimoMensaje"
+    ),
+    0
+  );
+
+}
+
+mensaje.remove();
+    
   } catch (error) {
 
     console.error(
