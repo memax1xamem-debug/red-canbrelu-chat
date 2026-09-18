@@ -2238,6 +2238,43 @@ input.addEventListener(
 
   }
 );
+
+// ========================================
+// FILTROS DE CLIENTES
+// ========================================
+
+filtroTodos.addEventListener("click", () => {
+
+  filtroTodos.classList.add("activo");
+  filtroPendientes.classList.remove("activo");
+
+  document
+    .querySelectorAll(".cliente")
+    .forEach(cliente => {
+      cliente.style.display = "";
+    });
+
+});
+
+filtroPendientes.addEventListener("click", () => {
+
+  filtroPendientes.classList.add("activo");
+  filtroTodos.classList.remove("activo");
+
+  document
+    .querySelectorAll(".cliente")
+    .forEach(cliente => {
+
+      if (cliente.classList.contains("espera-respuesta")) {
+        cliente.style.display = "";
+      } else {
+        cliente.style.display = "none";
+      }
+
+    });
+
+});
+  
 // ========================================
 // BUSCAR CLIENTES
 // ========================================
