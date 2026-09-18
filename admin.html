@@ -1917,6 +1917,43 @@ if (datos.tipo === "admin") {
   botonEliminar.style.fontSize = "13px";
   botonEliminar.style.marginLeft = "8px";
 
+botonEliminar.addEventListener("click", async (event) => {
+
+  event.stopPropagation();
+
+  const confirmar = confirm(
+    "¿Querés eliminar este mensaje?"
+  );
+
+  if (!confirmar) return;
+
+  try {
+
+    await remove(
+      ref(
+        db,
+        "conversaciones/" +
+        usuarioSeleccionado +
+        "/mensajes/" +
+        mensajeId
+      )
+    );
+
+    mensaje.remove();
+
+  } catch (error) {
+
+    console.error(
+      "Error al eliminar mensaje:",
+      error
+    );
+
+    alert("No se pudo eliminar el mensaje.");
+
+  }
+
+});
+  
   mensaje.appendChild(botonEliminar);
 }
   
