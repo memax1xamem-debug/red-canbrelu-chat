@@ -779,6 +779,19 @@ function actualizarNotificacion(usuarioId) {
     });
 
 }
+
+  function actualizarContadorPendientes() {
+
+  const cantidad =
+    document.querySelectorAll(
+      ".cliente.espera-respuesta"
+    ).length;
+
+  contadorPendientes.textContent =
+    "Pendientes: " + cantidad;
+
+}
+  
 function actualizarTituloPagina() {
 
   if (totalNoLeidos > 0) {
