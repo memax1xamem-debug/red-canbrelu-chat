@@ -1300,6 +1300,13 @@ ultimo.classList.add("cliente-ultimo");
 const textoUltimo =
   conversacion.ultimoTexto || "Sin mensajes";
 
+if (
+  textoUltimo !== "Sin mensajes" &&
+  !textoUltimo.startsWith("Vos:")
+) {
+  cliente.classList.add("espera-respuesta");
+}
+      
 ultimo.textContent =
   textoUltimo.length > 45
     ? textoUltimo.substring(0, 45) + "..."
