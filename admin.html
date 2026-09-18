@@ -826,6 +826,64 @@ botonFicha.style.background = "transparent";
 botonFicha.style.cursor = "pointer";
 botonFicha.style.fontSize = "14px";
 botonFicha.style.marginLeft = "4px";
+botonFicha.addEventListener("click", (event) => {
+
+  event.stopPropagation();
+
+  const telefonoActual =
+    info.telefono || "";
+
+  const notasActuales =
+    info.notas || "";
+
+  const telefono = prompt(
+    "Teléfono del cliente:",
+    telefonoActual
+  );
+
+  if (telefono === null) return;
+
+  const notas = prompt(
+    "Notas internas del cliente:",
+    notasActuales
+  );
+
+  if (notas === null) return;
+
+  Promise.all([
+    set(
+      ref(
+        db,
+        "conversaciones/" +
+        usuarioId +
+        "/info/telefono"
+      ),
+      telefono.trim()
+    ),
+
+    set(
+      ref(
+        db,
+        "conversaciones/" +
+        usuarioId +
+        "/info/notas"
+      ),
+      notas.trim()
+    )
+  ])
+  .then(() => {
+    alert("Ficha del cliente guardada.");
+  })
+  .catch((error) => {
+    console.error(
+      "Error al guardar ficha:",
+      error
+    );
+
+    alert("No se pudo guardar la ficha.");
+  });
+
+});
       
 editarNombre.addEventListener("click", async (event) => {
 
