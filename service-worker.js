@@ -49,15 +49,19 @@ if (usuarioId) {
     clients.matchAll({
       type: "window",
       includeUncontrolled: true
-    }).then((ventanas) => {
+    }).then(async (ventanas) => {
 
-      // Si Red Canbrelú ya está abierto, lo pone en primer plano
-      for (const ventana of ventanas) {
-        if ("focus" in ventana) {
-          return ventana.focus();
-        }
-      }
+      // Si Red Canbrelú ya está abierto,
+// lo lleva al chat correspondiente y lo pone en primer plano
+for (const ventana of ventanas) {
+  if ("navigate" in ventana) {
+    await ventana.navigate(url);
+  }
 
+  if ("focus" in ventana) {
+    return ventana.focus();
+  }
+}
       // Si está cerrado, abre la aplicación
       if (clients.openWindow) {
         return clients.openWindow(url);
