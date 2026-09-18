@@ -1902,6 +1902,24 @@ if (datos.archivoTamano) {
   hora.textContent = textoHora;
 }
 
+// BOTÓN ELIMINAR MENSAJE DEL ADMINISTRADOR
+if (datos.tipo === "admin") {
+
+  const botonEliminar =
+    document.createElement("button");
+
+  botonEliminar.textContent = "🗑️";
+  botonEliminar.title = "Eliminar mensaje";
+
+  botonEliminar.style.border = "none";
+  botonEliminar.style.background = "transparent";
+  botonEliminar.style.cursor = "pointer";
+  botonEliminar.style.fontSize = "13px";
+  botonEliminar.style.marginLeft = "8px";
+
+  mensaje.appendChild(botonEliminar);
+}
+  
   mensaje.appendChild(nombre);
   mensaje.appendChild(texto);
   mensaje.appendChild(hora);
