@@ -898,7 +898,38 @@ if (datos.archivoTamano) {
 
   const texto = document.createElement("span");
   texto.classList.add("texto");
-  texto.textContent = datos.texto || "";
+
+  const contenido = datos.texto || "";
+
+  // Detectar enlaces http:// o https://
+  const partes = contenido.split(/(https?:\/\/[^\s]+)/g);
+
+  partes.forEach((parte) => {
+
+    if (/^https?:\/\/[^\s]+$/.test(parte)) {
+
+      const enlace = document.createElement("a");
+
+      enlace.href = parte;
+      enlace.target = "_blank";
+      enlace.rel = "noopener noreferrer";
+      enlace.textContent = parte;
+
+      enlace.style.color = "#0066cc";
+      enlace.style.textDecoration = "underline";
+      enlace.style.wordBreak = "break-all";
+
+      texto.appendChild(enlace);
+
+    } else {
+
+      texto.appendChild(
+        document.createTextNode(parte)
+      );
+
+    }
+
+  });
 
   mensaje.appendChild(texto);
 
