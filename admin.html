@@ -590,12 +590,18 @@ const auth = getAuth(app);
 // PROTEGER PANEL ADMIN
 // ========================================
 
+const ADMIN_UID = "D9VUfpzW2FS1zkrbnJKaAMObP1Y2";
+let panelIniciado = false;
+
 onAuthStateChanged(auth, (user) => {
-
-  if (!user) {
+  if (!user || user.uid !== ADMIN_UID) {
     window.location.replace("login.html");
+    return;
   }
-
+  if (!panelIniciado) {
+    panelIniciado = true;
+    iniciarPanelAdministrador();
+  }
 });
 
 
@@ -948,6 +954,7 @@ function activarNotificaciones(usuarioId) {
 // LISTAR CLIENTES
 // ========================================
 
+function iniciarPanelAdministrador() {
 const consultaConversaciones = query(
   ref(db, "conversaciones"),
   orderByChild("ultimoMensaje"),
@@ -1425,7 +1432,7 @@ window.history.replaceState(
 
   }
 );
-
+}
 
 // ========================================
 // ABRIR CONVERSACIÓN
