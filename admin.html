@@ -594,11 +594,17 @@ const ADMIN_UID = "D9VUfpzW2FS1zkrbnJKaAMObP1Y2";
 let panelIniciado = false;
 
 onAuthStateChanged(auth, (user) => {
+  console.log("UID detectado:", user ? user.uid : "SIN SESIÓN");
+  console.log("¿Es anónimo?:", user ? user.isAnonymous : "SIN SESIÓN");
+
   if (!user || user.uid !== ADMIN_UID) {
+    alert(
+      "Sesión detectada: " +
+      (user ? user.uid : "SIN SESIÓN")
+    );
     window.location.replace("login.html");
     return;
-  }
-  if (!panelIniciado) {
+  }  if (!panelIniciado) {
     panelIniciado = true;
     iniciarPanelAdministrador();
   }
