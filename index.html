@@ -539,6 +539,12 @@ botonNotificaciones.addEventListener("click", async () => {
 if (nombreUsuario !== "") {
   inputNombre.disabled = true;
   guardarNombre.textContent = "✓";
+  // El nombre guardado en el navegador debe registrarse también en el chat nuevo.
+  set(ref(db, "conversaciones/" + usuarioId + "/info"), {
+    nombre: nombreUsuario,
+    usuarioId: usuarioId,
+    ultimaActividad: Date.now()
+  }).catch((error) => console.error("No se pudo registrar el nombre:", error));
 }
 
   // ========================================
