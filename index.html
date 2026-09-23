@@ -279,28 +279,23 @@ import {
 import {
   getAuth,
   signInAnonymously,
-  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
   
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
   const auth = getAuth(app);
 
-signInAnonymously(auth)
-  .then((resultado) => {
-    usuarioIdNuevo = resultado.user.uid;
+// Esperar a que Firebase autentique al cliente antes de crear referencias,
+// registrar listeners o permitir operaciones sobre su conversación.
+try {
+  await signInAnonymously(auth);
+} catch (error) {
+  console.error("No se pudo autenticar al cliente:", error);
+  alert("No se pudo conectar al chat. Volvé a intentar más tarde.");
+  throw error;
+}
 
-    console.log(
-      "Cliente autenticado:",
-      resultado.user.uid
-    );
-  })
-  .catch((error) => {
-    console.error(
-      "Error de autenticación:",
-      error
-    );
-  });const storage = getStorage(app);
+const storage = getStorage(app);
 const messaging = getMessaging(app);
 const VAPID_KEY = "BE62HdNtMolDz0NucI6HD62zS9aeFvVGnNDG8m-SQl04znLguwkPnqfMTNK5-90kqktNwYZbSQo9AmV2Q3hH9K8"
   
@@ -322,24 +317,11 @@ let nombreUsuario = localStorage.getItem("nombreUsuario") || "";
 
 inputNombre.value = nombreUsuario;
 
-// Conservar el identificador de la conversación anterior
+// El historial anterior permanece en Firebase para el administrador.
+// No reutilizar el identificador antiguo de localStorage para acceder al chat.
 const usuarioIdAnterior = localStorage.getItem("usuarioId");
-  
-let usuarioId = localStorage.getItem("usuarioId");
+const usuarioId = auth.currentUser.uid;
 
-if (!usuarioId) {
-  usuarioId =
-    "usuario_" +
-    Date.now() +
-    "_" +
-    Math.random().toString(36).substring(2, 8);
-
-  localStorage.setItem("usuarioId", usuarioId);
-}
-
-// Identificador de la nueva conversación segura
-let usuarioIdNuevo = null;
-  
 // ========================================
 // ABRIR CHAT DESDE UNA NOTIFICACIÓN
 // ========================================
@@ -512,7 +494,7 @@ botonNotificaciones.addEventListener("click", async () => {
   guardarNombre.textContent = "✓";
 
   console.log("Nombre guardado:", nombreUsuario);
-  console.log("Usuario ID:", usuarioId);
+  
 
   try {
 
