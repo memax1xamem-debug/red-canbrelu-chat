@@ -276,8 +276,29 @@ import {
     measurementId: "G-ZXGC8CCYK3"
   };
 
+import {
+  getAuth,
+  signInAnonymously,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+  
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+  const auth = getAuth(app);
+
+signInAnonymously(auth)
+  .then((resultado) => {
+    console.log(
+      "Cliente autenticado:",
+      resultado.user.uid
+    );
+  })
+  .catch((error) => {
+    console.error(
+      "Error de autenticación:",
+      error
+    );
+  });
 const storage = getStorage(app);
 const messaging = getMessaging(app);
 const VAPID_KEY = "BE62HdNtMolDz0NucI6HD62zS9aeFvVGnNDG8m-SQl04znLguwkPnqfMTNK5-90kqktNwYZbSQo9AmV2Q3hH9K8"
