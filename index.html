@@ -288,6 +288,8 @@ const db = getDatabase(app);
 
 signInAnonymously(auth)
   .then((resultado) => {
+    usuarioIdNuevo = resultado.user.uid;
+
     console.log(
       "Cliente autenticado:",
       resultado.user.uid
@@ -298,8 +300,7 @@ signInAnonymously(auth)
       "Error de autenticación:",
       error
     );
-  });
-const storage = getStorage(app);
+  });const storage = getStorage(app);
 const messaging = getMessaging(app);
 const VAPID_KEY = "BE62HdNtMolDz0NucI6HD62zS9aeFvVGnNDG8m-SQl04znLguwkPnqfMTNK5-90kqktNwYZbSQo9AmV2Q3hH9K8"
   
@@ -321,6 +322,9 @@ let nombreUsuario = localStorage.getItem("nombreUsuario") || "";
 
 inputNombre.value = nombreUsuario;
 
+// Conservar el identificador de la conversación anterior
+const usuarioIdAnterior = localStorage.getItem("usuarioId");
+  
 let usuarioId = localStorage.getItem("usuarioId");
 
 if (!usuarioId) {
@@ -333,6 +337,9 @@ if (!usuarioId) {
   localStorage.setItem("usuarioId", usuarioId);
 }
 
+// Identificador de la nueva conversación segura
+let usuarioIdNuevo = null;
+  
 // ========================================
 // ABRIR CHAT DESDE UNA NOTIFICACIÓN
 // ========================================
