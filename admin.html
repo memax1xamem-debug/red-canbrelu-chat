@@ -599,7 +599,9 @@ onAuthStateChanged(auth, (user) => {
     
     window.location.replace("login.html");
     return;
-  }  if (!panelIniciado) {
+  }  
+  
+  if (!panelIniciado) {
     panelIniciado = true;
     iniciarPanelAdministrador();
   }
