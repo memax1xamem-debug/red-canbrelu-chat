@@ -285,23 +285,77 @@
       cursor: not-allowed;
     }
 
-    @media (max-width: 700px) {
-      .admin {
-        flex-direction: column;
-      }
+.volver-clientes {
+  display: none;
+}
 
-      .clientes {
-        width: 100%;
-        height: 220px;
-        border-right: none;
-        border-bottom: 1px solid #ddd;
-      }
+.datos-chat {
+  flex: 1;
+  min-width: 0;
+}
+      
+  @media (max-width: 700px) {
 
-      .chat {
-        flex: 1;
-      }
-    }
+  body {
+    overflow: hidden;
+  }
 
+  .admin {
+    width: 100%;
+    height: 100dvh;
+    display: block;
+  }
+
+  /* LISTA DE CLIENTES */
+  .clientes {
+    width: 100%;
+    height: 100dvh;
+    border-right: none;
+    border-bottom: none;
+    overflow-y: auto;
+  }
+
+  /* CHAT OCULTO AL PRINCIPIO */
+  .chat {
+    display: none;
+    width: 100%;
+    height: 100dvh;
+  }
+
+  /* CUANDO ABRIMOS UNA CONVERSACIÓN */
+  .admin.chat-abierto .clientes {
+    display: none;
+  }
+
+  .admin.chat-abierto .chat {
+    display: flex;
+  }
+
+  .volver-clientes {
+  display: block;
+  border: none;
+  background: transparent;
+  color: white;
+  font-size: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0 12px 0 0;
+}
+
+.header {
+  padding: 12px;
+  gap: 8px;
+}
+
+#tituloChat {
+  font-size: 17px;
+}
+
+#cerrarSesion {
+  padding: 7px 9px;
+  font-size: 11px;
+}
+  }
       
       /* ========================================
    FICHA DEL CLIENTE
@@ -486,9 +540,13 @@
 
   <div class="chat">
 
- <div class="header">
+<div class="header">
 
-  <div>
+  <button id="volverClientes" class="volver-clientes">
+    ←
+  </button>
+
+  <div class="datos-chat">
     <div id="tituloChat">Seleccioná un cliente</div>
     <div id="estadoCliente" class="estado-cliente"></div>
   </div>
@@ -635,6 +693,9 @@ const botonArchivoAdmin =
   
 const cerrarSesion =
   document.getElementById("cerrarSesion");
+
+const volverClientes =
+  document.getElementById("volverClientes");
   
 const buscarCliente =
   document.getElementById("buscarCliente");
@@ -763,7 +824,20 @@ cerrarSesion.addEventListener("click", async () => {
 
 });
 
+// ========================================
+// VOLVER A LISTA DE CLIENTES EN CELULAR
+// ========================================
 
+volverClientes.addEventListener("click", () => {
+
+  if (window.innerWidth <= 700) {
+    document
+      .querySelector(".admin")
+      .classList.remove("chat-abierto");
+  }
+
+});
+  
 // ========================================
 // ACTUALIZAR BURBUJA DE NOTIFICACIÓN
 // ========================================
@@ -1632,19 +1706,13 @@ botonArchivoAdmin.disabled = false;
     });
 
 
-  // EN CELULAR IR AL CHAT
+ // EN CELULAR MOSTRAR CHAT A PANTALLA COMPLETA
 
-  if (window.innerWidth <= 700) {
-
-    document
-      .querySelector(".chat")
-      .scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-      });
-
-  }
-
+if (window.innerWidth <= 700) {
+  document
+    .querySelector(".admin")
+    .classList.add("chat-abierto");
+}
 
   // LIMPIAR CHAT ANTERIOR
 
