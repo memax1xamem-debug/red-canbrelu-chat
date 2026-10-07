@@ -334,6 +334,29 @@ function obtenerComprobanteCompartido() {
       1
     );
 
+async function eliminarComprobanteCompartido() {
+  const db = await new Promise((resolve, reject) => {
+    const solicitud = indexedDB.open("canbrelu-compartidos", 1);
+
+    solicitud.onsuccess = () => resolve(solicitud.result);
+    solicitud.onerror = () => reject(solicitud.error);
+  });
+
+  try {
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction("pendientes", "readwrite");
+
+      tx.objectStore("pendientes").delete("ultimo");
+
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+      tx.onabort = () => reject(tx.error);
+    });
+  } finally {
+    db.close();
+  }
+}
+    
     solicitud.onupgradeneeded = () => {
       const db = solicitud.result;
 
@@ -770,30 +793,27 @@ const botonComprobante =
 if (botonComprobante) {
   botonComprobante.style.display = "none";
 }
-
-const baseCompartidos = await abrirBaseCompartidosCliente();
-
-if (baseCompartidos) {
-  const tx = baseCompartidos.transaction(
-    "pendientes",
-    "readwrite"
-  );
-
-  tx.objectStore("pendientes").delete("ultimo");
-}
     
   } catch (error) {
 
-    console.error("ERROR AL SUBIR ARCHIVO:", error);
+  console.error("ERROR AL SUBIR ARCHIVO:", error);
 
-    alert(
-      "Error al subir archivo: " +
-      error.message
-    );
+  alert(
+    "No se pudo enviar el archivo.\n" +
+    "Podés volver a intentar.\n\n" +
+    error.message
+  );
 
+  const botonComprobante =
+    document.getElementById("enviarComprobante");
+
+  if (botonComprobante.style.display === "none") {
     archivoInput.value = "";
   }
-} // CIERRA enviarArchivo()
+
+}
+  
+  } // CIERRA enviarArchivo()
   
 archivoInput.addEventListener(
   "change",
