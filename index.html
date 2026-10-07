@@ -233,6 +233,14 @@
 
   <button id="botonEnviar">➤</button>
 
+<button
+  type="button"
+  id="enviarComprobante"
+  style="display:none;"
+>
+  ✓
+</button>
+   
 </div>
 
 </div>
@@ -756,6 +764,24 @@ async function enviarArchivo() {
 
     console.log("ARCHIVO ENVIADO:", url);
 
+const botonComprobante =
+  document.getElementById("enviarComprobante");
+
+if (botonComprobante) {
+  botonComprobante.style.display = "none";
+}
+
+const baseCompartidos = await abrirBaseCompartidosCliente();
+
+if (baseCompartidos) {
+  const tx = baseCompartidos.transaction(
+    "pendientes",
+    "readwrite"
+  );
+
+  tx.objectStore("pendientes").delete("ultimo");
+}
+    
   } catch (error) {
 
     console.error("ERROR AL SUBIR ARCHIVO:", error);
@@ -820,11 +846,17 @@ async function cargarComprobanteCompartido() {
     transferencia.items.add(archivoPreparado);
     archivoInput.files = transferencia.files;
 
-    alert(
-      "Comprobante recibido: " + nombre +
-      "\nTocá el botón 📎 y seleccioná el archivo para enviarlo."
-    );
+const botonComprobante =
+  document.getElementById("enviarComprobante");
 
+botonComprobante.style.display = "block";
+botonComprobante.title = "Enviar comprobante";
+    
+  alert(
+  "Comprobante recibido: " + nombre +
+  "\nTocá el botón ✓ para enviarlo."
+);
+    
   } catch (error) {
     console.error("Error al cargar comprobante:", error);
     alert("No se pudo preparar el comprobante.");
@@ -906,6 +938,21 @@ await set(
   }
 }
 
+document
+  .getElementById("enviarComprobante")
+  .addEventListener("click", async () => {
+
+    const boton = document.getElementById("enviarComprobante");
+
+    boton.disabled = true;
+
+    try {
+      await enviarArchivo();
+    } finally {
+      boton.disabled = false;
+    }
+  });
+  
 // Botón enviar
 boton.addEventListener("click", enviarMensaje);
 
