@@ -208,6 +208,32 @@
 </div>
   <div class="mensajes" id="mensajes"></div>
 
+<div id="vistaPreviaComprobante" style="
+  display:none;
+  background:#ffffff;
+  padding:12px;
+  border-top:1px solid #ddd;
+  text-align:center;
+">
+  <div id="contenidoPreviaComprobante"></div>
+
+  <button
+    type="button"
+    id="cancelarComprobante"
+    style="
+      margin-top:10px;
+      padding:8px 16px;
+      background:#d9534f;
+      color:white;
+      border:none;
+      border-radius:8px;
+      cursor:pointer;
+    "
+  >
+    ✕ Cancelar comprobante
+  </button>
+</div>
+  
  <div class="entrada">
 
   <input
@@ -686,12 +712,16 @@ onValue(conectadoRef, (snapshot) => {
   archivoInput.click();
 });
 
+let enviandoArchivo = false;
+  
 async function enviarArchivo() {
 
-  const archivo = archivoInput.files[0];
+  if (enviandoArchivo) return;
 
-  if (!archivo) return;
+const archivo = archivoInput.files[0];
 
+if (!archivo) return;
+  
   if (archivo.size > 10 * 1024 * 1024) {
     alert("El archivo supera los 10 MB.");
     archivoInput.value = "";
@@ -703,10 +733,12 @@ if (nombreUsuario === "") {
   return;
 }
 
+   enviandoArchivo = true;
+
   try {
 
     const formData = new FormData();
-
+    
     formData.append("file", archivo);
     formData.append("upload_preset", "chat_archivos");
 
@@ -778,6 +810,14 @@ const botonComprobante =
 if (botonComprobante.style.display !== "none") {
   botonComprobante.style.display = "none";
 
+document.getElementById(
+  "vistaPreviaComprobante"
+).style.display = "none";
+
+document.getElementById(
+  "contenidoPreviaComprobante"
+).innerHTML = "";
+  
   eliminarComprobanteCompartido().catch(error => {
     console.error(
       "No se pudo limpiar el comprobante temporal:",
@@ -808,6 +848,10 @@ if (botonComprobante.style.display !== "none") {
   }
 
 }
+
+  finally {
+    enviandoArchivo = false;
+  }
   
   } // CIERRA enviarArchivo()
   
@@ -862,6 +906,51 @@ async function cargarComprobanteCompartido() {
     transferencia.items.add(archivoPreparado);
     archivoInput.files = transferencia.files;
 
+    
+const vistaPrevia = document.getElementById(
+  "vistaPreviaComprobante"
+);
+
+const contenidoPrevia = document.getElementById(
+  "contenidoPreviaComprobante"
+);
+
+contenidoPrevia.innerHTML = "";
+
+const tituloPrevia = document.createElement("div");
+tituloPrevia.textContent = "Comprobante listo para enviar";
+tituloPrevia.style.fontWeight = "bold";
+tituloPrevia.style.marginBottom = "8px";
+contenidoPrevia.appendChild(tituloPrevia);
+
+if (archivoPreparado.type.startsWith("image/")) {
+  const imagen = document.createElement("img");
+  const urlTemporal = URL.createObjectURL(archivoPreparado);
+
+  imagen.src = urlTemporal;
+  imagen.style.maxWidth = "100%";
+  imagen.style.maxHeight = "220px";
+  imagen.style.borderRadius = "8px";
+  imagen.onload = () => URL.revokeObjectURL(urlTemporal);
+
+  contenidoPrevia.appendChild(imagen);
+} else {
+  const iconoPDF = document.createElement("div");
+  iconoPDF.textContent = "📄 Documento PDF";
+  iconoPDF.style.fontSize = "18px";
+  contenidoPrevia.appendChild(iconoPDF);
+}
+
+const nombreArchivo = document.createElement("div");
+nombreArchivo.textContent = archivoPreparado.name;
+nombreArchivo.style.marginTop = "8px";
+nombreArchivo.style.overflowWrap = "anywhere";
+
+contenidoPrevia.appendChild(nombreArchivo);
+
+vistaPrevia.style.display = "block";
+
+
 const botonComprobante =
   document.getElementById("enviarComprobante");
 
@@ -886,6 +975,34 @@ botonComprobante.title = "Enviar comprobante";
 }
 
 cargarComprobanteCompartido();
+
+  document.getElementById("cancelarComprobante")
+  .addEventListener("click", async () => {
+
+    archivoInput.value = "";
+
+    document.getElementById(
+      "vistaPreviaComprobante"
+    ).style.display = "none";
+
+    document.getElementById(
+      "contenidoPreviaComprobante"
+    ).innerHTML = "";
+
+    document.getElementById(
+      "enviarComprobante"
+    ).style.display = "none";
+
+    try {
+      await eliminarComprobanteCompartido();
+    } catch (error) {
+      console.error(
+        "Error al cancelar comprobante:",
+        error
+      );
+    }
+
+  });
   
 async function enviarMensaje() {
 
