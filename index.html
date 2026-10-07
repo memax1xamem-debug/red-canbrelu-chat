@@ -783,17 +783,24 @@ async function enviarArchivo() {
       "📎 " + archivo.name
     );
 
+const botonComprobante =
+  document.getElementById("enviarComprobante");
+
+if (botonComprobante.style.display !== "none") {
+  botonComprobante.style.display = "none";
+
+  eliminarComprobanteCompartido().catch(error => {
+    console.error(
+      "No se pudo limpiar el comprobante temporal:",
+      error
+    );
+  });
+}
+    
     archivoInput.value = "";
 
     console.log("ARCHIVO ENVIADO:", url);
 
-const botonComprobante =
-  document.getElementById("enviarComprobante");
-
-if (botonComprobante) {
-  botonComprobante.style.display = "none";
-}
-    
   } catch (error) {
 
   console.error("ERROR AL SUBIR ARCHIVO:", error);
