@@ -136,3 +136,76 @@ self.addEventListener("fetch", (event) => {
     })
   );
 });
+
+
+//
+// RECIBIR COMPROBANTES COMPARTIDOS
+//
+
+self.addEventListener("fetch", (event) => {
+
+  const url = new URL(event.request.url);
+
+  if (
+    event.request.method !== "POST" ||
+    url.searchParams.get("compartir") !== "1"
+  ) {
+    return;
+  }
+
+  event.respondWith((async () => {
+
+    try {
+      const datos = await event.request.formData();
+
+      const archivos = datos.getAll("comprobante")
+        .filter(archivo => archivo instanceof File);
+
+      const texto = datos.get("text") || "";
+      const enlace = datos.get("url") || "";
+      const titulo = datos.get("title") || "";
+
+      const cache = await caches.open("canbrelu-compartidos");
+
+      const contenido = new Response(
+        JSON.stringify({
+          titulo,
+          texto,
+          enlace,
+          archivos: archivos.map(archivo => ({
+            nombre: archivo.name,
+            tipo: archivo.type
+          }))
+        }),
+        {
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }
+      );
+
+      await cache.put(
+        new Request("./comprobante-pendiente"),
+        contenido
+      );
+
+      return Response.redirect(
+        new URL("./index.html?comprobante=1", self.registration.scope),
+        303
+      );
+
+    } catch (error) {
+
+      console.error("Error al recibir comprobante:", error);
+
+      return Response.redirect(
+        new URL("./index.html?errorCompartir=1", self.registration.scope),
+        303
+      );
+
+    }
+
+  })());
+
+});
+
