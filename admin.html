@@ -917,6 +917,13 @@ const botonSticker =
 
 const panelStickers =
   document.getElementById("panelStickers");
+
+const botonAudio =
+  document.getElementById("botonAudio");
+
+let grabadorAudio = null;
+let fragmentosAudio = [];
+let grabandoAudio = false;
   
 const cerrarSesion =
   document.getElementById("cerrarSesion");
@@ -1908,6 +1915,7 @@ cancelarEstado = onValue(
   botonArchivoAdmin.disabled = false;
   botonEmoji.disabled = false;
   botonSticker.disabled = false;
+  botonAudio.disabled = false;
 
   input.focus();
 
@@ -2804,6 +2812,81 @@ panelStickers.querySelectorAll(".sticker").forEach((sticker) => {
     enviarMensaje();
 
   });
+
+});
+
+// ========================================
+// GRABAR AUDIO
+// ========================================
+
+botonAudio.addEventListener("click", async () => {
+
+  // EMPEZAR A GRABAR
+  if (!grabandoAudio) {
+
+    try {
+
+      const stream =
+        await navigator.mediaDevices.getUserMedia({
+          audio: true
+        });
+
+      fragmentosAudio = [];
+
+      grabadorAudio =
+        new MediaRecorder(stream);
+
+      grabadorAudio.addEventListener(
+        "dataavailable",
+        (event) => {
+
+          if (event.data.size > 0) {
+            fragmentosAudio.push(event.data);
+          }
+
+        }
+      );
+
+      grabadorAudio.start();
+
+      grabandoAudio = true;
+
+      botonAudio.textContent = "⏹️";
+      botonAudio.title = "Detener grabación";
+
+    } catch (error) {
+
+      console.error(
+        "No se pudo acceder al micrófono:",
+        error
+      );
+
+      alert(
+        "No se pudo acceder al micrófono. Revisá los permisos."
+      );
+
+    }
+
+    return;
+  }
+
+  // DETENER GRABACIÓN
+  if (grabadorAudio) {
+
+    grabadorAudio.stop();
+
+    grabadorAudio.stream
+      .getTracks()
+      .forEach(track => track.stop());
+
+  }
+
+  grabandoAudio = false;
+
+  botonAudio.textContent = "🎤";
+  botonAudio.title = "Grabar audio";
+
+  console.log("Grabación detenida.");
 
 });
   
