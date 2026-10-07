@@ -475,6 +475,42 @@
   color: #777;
   margin-top: 3px;
 }
+
+/* PANEL DE EMOJIS */
+.entrada {
+  position: relative;
+  align-items: flex-end;
+}
+
+.panel-emojis {
+  display: none;
+  position: absolute;
+  bottom: 70px;
+  left: 65px;
+  width: 280px;
+  padding: 10px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 3px 15px rgba(0,0,0,0.25);
+  z-index: 1000;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.panel-emojis.activo {
+  display: flex;
+}
+
+.panel-emojis span {
+  font-size: 26px;
+  padding: 5px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.panel-emojis span:hover {
+  background: #eeeeee;
+}
       
       </style>
 </head>
@@ -594,7 +630,45 @@
 >
   📎
 </button>
-     <textarea
+
+      <button
+  type="button"
+  id="botonEmoji"
+  title="Emojis"
+  disabled
+>
+  😀
+</button>
+
+<div id="panelEmojis" class="panel-emojis">
+  <span>😀</span>
+  <span>😂</span>
+  <span>😍</span>
+  <span>🥰</span>
+  <span>😊</span>
+  <span>😉</span>
+  <span>😎</span>
+  <span>🤩</span>
+  <span>😘</span>
+  <span>😜</span>
+  <span>🤔</span>
+  <span>😢</span>
+  <span>😭</span>
+  <span>😡</span>
+  <span>👍</span>
+  <span>👎</span>
+  <span>👏</span>
+  <span>🙌</span>
+  <span>🙏</span>
+  <span>💪</span>
+  <span>❤️</span>
+  <span>💚</span>
+  <span>🔥</span>
+  <span>🎉</span>
+  <span>✅</span>
+</div>
+      
+      <textarea
   id="mensaje"
   placeholder="Escribí una respuesta..."
   autocomplete="off"
@@ -708,6 +782,12 @@ const archivoAdmin =
 
 const botonArchivoAdmin =
   document.getElementById("botonArchivoAdmin");
+
+const botonEmoji =
+  document.getElementById("botonEmoji");
+
+const panelEmojis =
+  document.getElementById("panelEmojis");
   
 const cerrarSesion =
   document.getElementById("cerrarSesion");
@@ -1694,9 +1774,10 @@ cancelarEstado = onValue(
   
   // Habilitar campo
 
- input.disabled = false;
-botonEnviar.disabled = false;
-botonArchivoAdmin.disabled = false;
+  input.disabled = false;
+  botonEnviar.disabled = false;
+  botonArchivoAdmin.disabled = false;
+  botonEmoji.disabled = false;
 
   input.focus();
 
@@ -2463,6 +2544,30 @@ archivoAdmin.addEventListener(
   
 botonArchivoAdmin.addEventListener("click", () => {
   archivoAdmin.click();
+});
+
+// ABRIR Y CERRAR PANEL DE EMOJIS
+botonEmoji.addEventListener("click", () => {
+  panelEmojis.classList.toggle("activo");
+});
+
+// AGREGAR EMOJI AL MENSAJE
+panelEmojis.querySelectorAll("span").forEach((emoji) => {
+
+  emoji.addEventListener("click", () => {
+
+    input.value += emoji.textContent;
+
+    input.dispatchEvent(
+      new Event("input", { bubbles: true })
+    );
+
+    input.focus();
+
+    panelEmojis.classList.remove("activo");
+
+  });
+
 });
   
 // ========================================
