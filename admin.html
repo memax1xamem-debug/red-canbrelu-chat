@@ -560,6 +560,14 @@
 .sticker:hover {
   background: #dcf8c6;
 }
+
+.sticker img {
+  width: 100%;
+  max-width: 120px;
+  height: auto;
+  display: block;
+  object-fit: contain;
+}
       
       </style>
 </head>
@@ -699,7 +707,9 @@
 </button>
 
 <div id="panelStickers" class="panel-stickers">
-  <div class="sticker" data-sticker="fichas">🎰<span>Fichas cargadas</span></div>
+  <div class="sticker" data-sticker="fichas">
+  <img src="sticker-fichas.png" alt="Fichas cargadas">
+</div>
   <div class="sticker" data-sticker="pago">💰<span>Pago acreditado</span></div>
   <div class="sticker" data-sticker="gracias">🙏<span>¡Gracias!</span></div>
   <div class="sticker" data-sticker="suerte">🍀<span>¡Mucha suerte!</span></div>
@@ -2652,13 +2662,71 @@ panelEmojis.querySelectorAll("span").forEach((emoji) => {
 
 });
 
-// ENVIAR STICKER
+// ENVIAR STICKERS
 panelStickers.querySelectorAll(".sticker").forEach((sticker) => {
 
-  sticker.addEventListener("click", () => {
+  sticker.addEventListener("click", async () => {
 
     if (!usuarioSeleccionado) return;
 
+    // Por ahora el sticker gráfico disponible es "Fichas cargadas"
+    if (sticker.dataset.sticker === "fichas") {
+
+      panelStickers.classList.remove("activo");
+
+      try {
+
+        const fecha = Date.now();
+
+        await push(
+          ref(
+            db,
+            "conversaciones/" +
+            usuarioSeleccionado +
+            "/mensajes"
+          ),
+          {
+            tipo: "admin",
+            nombre: "Administrador",
+            fecha: fecha,
+            leido: false,
+            sticker: true,
+            stickerUrl: "sticker-fichas.png",
+            texto: ""
+          }
+        );
+
+        await set(
+          ref(
+            db,
+            "conversaciones/" +
+            usuarioSeleccionado +
+            "/ultimoMensaje"
+          ),
+          fecha
+        );
+
+        await set(
+          ref(
+            db,
+            "conversaciones/" +
+            usuarioSeleccionado +
+            "/ultimoTexto"
+          ),
+          "Vos: 🎰 Sticker"
+        );
+
+      } catch (error) {
+
+        console.error("Error al enviar sticker:", error);
+        alert("No se pudo enviar el sticker.");
+
+      }
+
+      return;
+    }
+
+    // Los otros tres siguen funcionando como texto
     const textoSticker =
       sticker.innerText
         .replace(/\n/g, " ")
@@ -2667,8 +2735,6 @@ panelStickers.querySelectorAll(".sticker").forEach((sticker) => {
     panelStickers.classList.remove("activo");
 
     input.value = textoSticker;
-
-    // Disparar evento input
     input.dispatchEvent(
       new Event("input", { bubbles: true })
     );
