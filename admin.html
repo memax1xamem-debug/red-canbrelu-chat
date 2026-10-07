@@ -2904,21 +2904,27 @@ botonEnviar.addEventListener(
 // ENVIAR CON ENTER
 // ========================================
 
-input.addEventListener(
-  "keydown",
-  (event) => {
+input.addEventListener("keydown", (event) => {
 
-    if (event.key === "Enter") {
+  if (event.key === "Enter" && event.ctrlKey) {
+    event.preventDefault();
 
-      event.preventDefault();
+    const inicio = input.selectionStart;
+    const fin = input.selectionEnd;
 
-      enviarMensaje();
+    input.setRangeText("\n", inicio, fin, "end");
+    input.dispatchEvent(new Event("input", { bubbles: true }));
 
-    }
-
+    return;
   }
-);
 
+  if (event.key === "Enter" && !event.shiftKey) {
+    event.preventDefault();
+    enviarMensaje();
+  }
+
+});
+  
 // ========================================
 // FILTROS DE CLIENTES
 // ========================================
