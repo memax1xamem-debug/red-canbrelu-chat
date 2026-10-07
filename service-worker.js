@@ -93,7 +93,7 @@ self.addEventListener("notificationclick", (event) => {
 
 });
 
-const CACHE_NAME = "canbrelu-chat-v2";
+const CACHE_NAME = "canbrelu-chat-v3";
 
 const ARCHIVOS = [
   "./",
@@ -209,3 +209,79 @@ self.addEventListener("fetch", (event) => {
 
 });
 
+
+//
+// COMPARTIR COMPROBANTES - RED CANBRELÚ
+//
+
+function abrirBaseCompartidos() {
+  return new Promise((resolve, reject) => {
+    const solicitud = indexedDB.open("canbrelu-compartidos", 1);
+
+    solicitud.onupgradeneeded = () => {
+      const db = solicitud.result;
+      if (!db.objectStoreNames.contains("pendientes")) {
+        db.createObjectStore("pendientes");
+      }
+    };
+
+    solicitud.onsuccess = () => resolve(solicitud.result);
+    solicitud.onerror = () => reject(solicitud.error);
+  });
+}
+
+async function guardarCompartido(datos) {
+  const db = await abrirBaseCompartidos();
+
+  try {
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction("pendientes", "readwrite");
+
+      tx.objectStore("pendientes").put(datos, "ultimo");
+
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+      tx.onabort = () => reject(tx.error);
+    });
+  } finally {
+    db.close();
+  }
+}
+
+self.addEventListener("fetch", (event) => {
+  const url = new URL(event.request.url);
+
+  if (
+    event.request.method !== "POST" ||
+    url.searchParams.get("compartir") !== "1"
+  ) {
+    return;
+  }
+
+  event.respondWith((async () => {
+    const destino = new URL("./index.html", self.registration.scope);
+
+    try {
+      const formulario = await event.request.formData();
+
+      const archivos = formulario.getAll("comprobante")
+        .filter(archivo => archivo instanceof Blob);
+
+      await guardarCompartido({
+        titulo: String(formulario.get("title") || ""),
+        texto: String(formulario.get("text") || ""),
+        enlace: String(formulario.get("url") || ""),
+        archivos: archivos,
+        fecha: Date.now()
+      });
+
+      destino.searchParams.set("comprobante", "1");
+
+    } catch (error) {
+      console.error("Error al recibir comprobante:", error);
+      destino.searchParams.set("errorCompartir", "1");
+    }
+
+    return Response.redirect(destino.href, 303);
+  })());
+});
