@@ -2655,21 +2655,25 @@ panelEmojis.querySelectorAll("span").forEach((emoji) => {
 // ENVIAR STICKER
 panelStickers.querySelectorAll(".sticker").forEach((sticker) => {
 
-  sticker.addEventListener("click", async () => {
+  sticker.addEventListener("click", () => {
 
     if (!usuarioSeleccionado) return;
 
-    const emoji =
-      sticker.childNodes[0].textContent.trim();
-
-    const texto =
-      sticker.querySelector("span").textContent;
+    const textoSticker =
+      sticker.innerText
+        .replace(/\n/g, " ")
+        .trim();
 
     panelStickers.classList.remove("activo");
 
-    input.value = emoji + " " + texto;
+    input.value = textoSticker;
 
-    await enviarMensaje();
+    // Disparar evento input
+    input.dispatchEvent(
+      new Event("input", { bubbles: true })
+    );
+
+    enviarMensaje();
 
   });
 
