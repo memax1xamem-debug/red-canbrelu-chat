@@ -853,6 +853,12 @@ const botonEmoji =
 
 const panelEmojis =
   document.getElementById("panelEmojis");
+
+const botonSticker =
+  document.getElementById("botonSticker");
+
+const panelStickers =
+  document.getElementById("panelStickers");
   
 const cerrarSesion =
   document.getElementById("cerrarSesion");
@@ -1843,6 +1849,7 @@ cancelarEstado = onValue(
   botonEnviar.disabled = false;
   botonArchivoAdmin.disabled = false;
   botonEmoji.disabled = false;
+  botonSticker.disabled = false;
 
   input.focus();
 
@@ -2616,6 +2623,16 @@ botonEmoji.addEventListener("click", () => {
   panelEmojis.classList.toggle("activo");
 });
 
+// ABRIR Y CERRAR PANEL DE STICKERS
+botonSticker.addEventListener("click", () => {
+
+  panelStickers.classList.toggle("activo");
+
+  // Si está abierto el panel de emojis, cerrarlo
+  panelEmojis.classList.remove("activo");
+
+});
+  
 // AGREGAR EMOJI AL MENSAJE
 panelEmojis.querySelectorAll("span").forEach((emoji) => {
 
