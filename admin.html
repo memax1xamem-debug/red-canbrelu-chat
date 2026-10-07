@@ -2632,7 +2632,7 @@ botonSticker.addEventListener("click", () => {
   panelEmojis.classList.remove("activo");
 
 });
-  
+
 // AGREGAR EMOJI AL MENSAJE
 panelEmojis.querySelectorAll("span").forEach((emoji) => {
 
@@ -2647,6 +2647,29 @@ panelEmojis.querySelectorAll("span").forEach((emoji) => {
     input.focus();
 
     panelEmojis.classList.remove("activo");
+
+  });
+
+});
+
+// ENVIAR STICKER
+panelStickers.querySelectorAll(".sticker").forEach((sticker) => {
+
+  sticker.addEventListener("click", async () => {
+
+    if (!usuarioSeleccionado) return;
+
+    const emoji =
+      sticker.childNodes[0].textContent.trim();
+
+    const texto =
+      sticker.querySelector("span").textContent;
+
+    panelStickers.classList.remove("activo");
+
+    input.value = emoji + " " + texto;
+
+    await enviarMensaje();
 
   });
 
