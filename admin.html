@@ -2060,7 +2060,21 @@ function mostrarMensaje(datos, mensajeId) {
 
 const texto = document.createElement("span");
 
-if (datos.archivo === true && datos.archivoUrl) {
+if (datos.sticker === true && datos.stickerUrl) {
+
+  const imagenSticker = document.createElement("img");
+
+  imagenSticker.src = datos.stickerUrl;
+  imagenSticker.alt = "Sticker";
+
+  imagenSticker.style.width = "180px";
+  imagenSticker.style.maxWidth = "100%";
+  imagenSticker.style.height = "auto";
+  imagenSticker.style.display = "block";
+
+  texto.appendChild(imagenSticker);
+
+} else if (datos.archivo === true && datos.archivoUrl) {
 
 if (
   datos.archivoTipo &&
