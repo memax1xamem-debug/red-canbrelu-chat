@@ -264,6 +264,24 @@
       font-size: 16px;
     }
 
+.entrada textarea {
+  flex: 1;
+  padding: 13px 16px;
+  border: none;
+  border-radius: 22px;
+  outline: none;
+  font-size: 16px;
+  font-family: Arial, sans-serif;
+
+  resize: none;
+  overflow-y: auto;
+
+  min-height: 50px;
+  max-height: 130px;
+
+  line-height: 22px;
+}
+      
     .entrada button {
       width: 50px;
       height: 50px;
@@ -576,13 +594,13 @@
 >
   📎
 </button>
-      <input
-        type="text"
-        id="mensaje"
-        placeholder="Escribí una respuesta..."
-        autocomplete="off"
-        disabled
-      >
+     <textarea
+  id="mensaje"
+  placeholder="Escribí una respuesta..."
+  autocomplete="off"
+  rows="1"
+  disabled
+></textarea>
 
       <button id="botonEnviar" disabled>➤</button>
     </div>
@@ -2332,6 +2350,8 @@ async function enviarMensaje() {
   }
 
   input.value = "";
+input.style.height = "auto";
+  
 set(
   ref(
     db,
@@ -2404,6 +2424,13 @@ set(
 // ADMIN ESTÁ ESCRIBIENDO
 // ========================================
 
+// AGRANDAR CUADRO DE TEXTO AUTOMÁTICAMENTE
+input.addEventListener("input", () => {
+  input.style.height = "auto";
+  input.style.height =
+    Math.min(input.scrollHeight, 130) + "px";
+});
+  
 let temporizadorEscribiendoAdmin;
 
 input.addEventListener("input", () => {
