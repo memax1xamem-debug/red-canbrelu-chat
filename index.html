@@ -233,6 +233,39 @@
     ✕ Cancelar comprobante
   </button>
 </div>
+
+<!-- VISTA PREVIA DEL AUDIO -->
+<div id="vistaPreviaAudio" style="
+  display:none;
+  padding:10px;
+  background:#f0f0f0;
+  border-top:1px solid #ddd;
+  align-items:center;
+  gap:8px;
+">
+
+  <audio
+    id="reproductorAudio"
+    controls
+    style="flex:1;min-width:0;width:100%;"
+  ></audio>
+
+  <button
+    type="button"
+    id="cancelarAudio"
+    style="
+      padding:10px;
+      border:none;
+      border-radius:8px;
+      background:#d9534f;
+      color:white;
+      cursor:pointer;
+    "
+  >
+    ✕
+  </button>
+
+</div>
   
  <div class="entrada">
 
@@ -448,7 +481,26 @@ botonAudio.addEventListener("click", async () => {
 
       console.log("Audio grabado:", audioGrabado.size, "bytes");
 
-      alert("Audio grabado correctamente.");
+// Mostrar vista previa del audio
+const vistaPreviaAudio =
+  document.getElementById("vistaPreviaAudio");
+
+const reproductorAudio =
+  document.getElementById("reproductorAudio");
+
+// Liberar una vista previa anterior
+if (reproductorAudio.src.startsWith("blob:")) {
+  URL.revokeObjectURL(reproductorAudio.src);
+}
+
+// Crear reproductor con el audio grabado
+reproductorAudio.src =
+  URL.createObjectURL(audioGrabado);
+
+reproductorAudio.load();
+
+vistaPreviaAudio.style.display = "flex";
+    
     };
 
     grabadorAudio.start();
