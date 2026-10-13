@@ -256,7 +256,14 @@
     placeholder="Escribí un mensaje..."
     autocomplete="off"
   >
-
+<button
+  type="button"
+  id="botonAudio"
+  title="Grabar audio"
+>
+  🎤
+</button>
+   
   <button id="botonEnviar">➤</button>
 
 <button
@@ -371,8 +378,100 @@ const guardarNombre = document.getElementById("guardarNombre");
 const botonArchivo =
   document.getElementById("botonArchivo");
 
-  
+  // ========================================
+// MENSAJES DE VOZ
+// ========================================
 
+const botonAudio =
+  document.getElementById("botonAudio");
+
+let grabadorAudio = null;
+let fragmentosAudio = [];
+let audioGrabado = null;
+let flujoMicrofono = null;
+let grabandoAudio = false;
+
+// ========================================
+// INICIAR Y DETENER GRABACIÓN DE VOZ
+// ========================================
+
+botonAudio.addEventListener("click", async () => {
+
+  if (grabandoAudio) {
+    grabadorAudio.stop();
+    return;
+  }
+
+  if (nombreUsuario === "") {
+    alert("Primero escribí tu nombre y guardalo.");
+    return;
+  }
+
+  if (!navigator.mediaDevices?.getUserMedia ||
+      !window.MediaRecorder) {
+    alert("Este dispositivo no permite grabar audio.");
+    return;
+  }
+
+  try {
+
+    flujoMicrofono =
+      await navigator.mediaDevices.getUserMedia({
+        audio: true
+      });
+
+    fragmentosAudio = [];
+
+    grabadorAudio = new MediaRecorder(flujoMicrofono);
+
+    grabadorAudio.ondataavailable = (evento) => {
+      if (evento.data.size > 0) {
+        fragmentosAudio.push(evento.data);
+      }
+    };
+
+    grabadorAudio.onstop = () => {
+
+      audioGrabado = new Blob(fragmentosAudio, {
+        type: grabadorAudio.mimeType
+      });
+
+      flujoMicrofono.getTracks().forEach(track => {
+        track.stop();
+      });
+
+      flujoMicrofono = null;
+      grabandoAudio = false;
+
+      botonAudio.textContent = "🎤";
+      botonAudio.style.background = "#075e54";
+
+      console.log("Audio grabado:", audioGrabado.size, "bytes");
+
+      alert("Audio grabado correctamente.");
+    };
+
+    grabadorAudio.start();
+
+    grabandoAudio = true;
+
+    botonAudio.textContent = "⏹";
+    botonAudio.style.background = "#d9534f";
+
+  } catch (error) {
+
+    console.error("Error al grabar audio:", error);
+
+    if (flujoMicrofono) {
+      flujoMicrofono.getTracks().forEach(track => track.stop());
+      flujoMicrofono = null;
+    }
+
+    alert("No se pudo acceder al micrófono.");
+  }
+
+});
+  
 //
 // LEER COMPROBANTE COMPARTIDO
 //
