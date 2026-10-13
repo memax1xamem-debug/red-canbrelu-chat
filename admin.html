@@ -926,6 +926,7 @@ const botonAudio =
 let grabadorAudio = null;
 let fragmentosAudio = [];
 let grabandoAudio = false;
+let audioPendiente = null;  
   
 const cerrarSesion =
   document.getElementById("cerrarSesion");
@@ -2860,6 +2861,8 @@ grabadorAudio.onstop = () => {
     type: grabadorAudio.mimeType
   });
 
+audioPendiente = audioBlob;
+  
   if (audioBlob.size === 0) {
     alert("No se pudo grabar el audio.");
     return;
@@ -2879,6 +2882,22 @@ reproductor.style.margin = "10px auto";
 
 document.body.appendChild(reproductor);
 
+const botonEnviarAudio = document.createElement("button");
+
+botonEnviarAudio.textContent = "📤 Enviar audio";
+
+botonEnviarAudio.style.position = "fixed";
+botonEnviarAudio.style.top = "135px";
+botonEnviarAudio.style.left = "10px";
+botonEnviarAudio.style.zIndex = "99999";
+botonEnviarAudio.style.padding = "10px";
+botonEnviarAudio.style.background = "#075e54";
+botonEnviarAudio.style.color = "white";
+botonEnviarAudio.style.border = "none";
+botonEnviarAudio.style.borderRadius = "8px";
+
+document.body.appendChild(botonEnviarAudio);
+  
 reproductor.style.position = "fixed";
 reproductor.style.top = "80px";
 reproductor.style.left = "10px";
