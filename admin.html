@@ -2965,8 +2965,11 @@ audioPendiente = audioBlob;
 
   reproductor.controls = true;
   reproductor.src = urlAudio;
-  reproductor.style.width = "100%";
-  reproductor.style.maxWidth = "260px";
+ reproductor.style.width = "100%";
+reproductor.style.maxWidth = "100%";
+reproductor.style.minWidth = "0";
+reproductor.style.boxSizing = "border-box";
+reproductor.style.margin = "0 auto";
 
   reproductor.style.display = "block";
 reproductor.style.margin = "10px auto";
