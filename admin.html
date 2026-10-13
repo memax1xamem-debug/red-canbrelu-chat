@@ -2854,6 +2854,8 @@ botonAudio.addEventListener("click", async () => {
 
 grabadorAudio.onstop = () => {
 
+  alert("Terminó la grabación. Voy a mostrar el reproductor.");
+
   const audioBlob = new Blob(fragmentosAudio, {
     type: grabadorAudio.mimeType
   });
