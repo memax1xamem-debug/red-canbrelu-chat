@@ -2984,7 +2984,10 @@ panelAudio.style.margin = "10px";
 
 panelAudio.appendChild(reproductor);
 
-listaMensajes.parentElement.appendChild(panelAudio);
+botonAudio.parentElement.insertAdjacentElement(
+  "beforebegin",
+  panelAudio
+);
 
 const botonEnviarAudio = document.createElement("button");
 
