@@ -315,12 +315,16 @@ import {
 import {
   getAuth,
   signInAnonymously,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-  
+  onAuthStateChanged,
+  setPersistence,
+  browserLocalPersistence
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";  
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
   const auth = getAuth(app);
+
+  // Mantener la sesión del cliente guardada
+await setPersistence(auth, browserLocalPersistence);
 
 // Esperar a que Firebase autentique al cliente antes de crear referencias,
 // registrar listeners o permitir operaciones sobre su conversación.
