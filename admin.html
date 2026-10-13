@@ -2504,6 +2504,93 @@ async function enviarArchivoAdmin() {
     archivoAdmin.value = "";
   }
 }
+
+async function enviarAudioAdmin() {
+
+  if (!audioPendiente) {
+    alert("No hay ningún audio para enviar.");
+    return;
+  }
+
+  if (!usuarioSeleccionado) {
+    alert("Primero seleccioná un cliente.");
+    return;
+  }
+
+  const audio = audioPendiente;
+  const clienteDestino = usuarioSeleccionado;
+
+  try {
+
+    const formData = new FormData();
+
+    formData.append(
+      "file",
+      audio,
+      "audio-" + Date.now() + ".webm"
+    );
+
+    formData.append("upload_preset", "chat_archivos");
+
+    const respuesta = await fetch(
+      "https://api.cloudinary.com/v1_1/qqmjx1vh/auto/upload",
+      {
+        method: "POST",
+        body: formData
+      }
+    );
+
+    const resultado = await respuesta.json();
+
+    if (!respuesta.ok) {
+      throw new Error(
+        resultado?.error?.message ||
+        "No se pudo subir el audio."
+      );
+    }
+
+    const fecha = Date.now();
+
+    await push(
+      ref(db, "conversaciones/" + clienteDestino + "/mensajes"),
+      {
+        tipo: "admin",
+        nombre: "Administrador",
+        fecha: fecha,
+        leido: false,
+        audio: true,
+        archivo: true,
+        archivoNombre: "audio.webm",
+        archivoTipo: audio.type,
+        archivoTamano: audio.size,
+        archivoUrl: resultado.secure_url,
+        texto: ""
+      }
+    );
+
+    await set(
+      ref(db, "conversaciones/" + clienteDestino + "/ultimoMensaje"),
+      fecha
+    );
+
+    await set(
+      ref(db, "conversaciones/" + clienteDestino + "/ultimoTexto"),
+      "Vos: 🎤 Audio"
+    );
+
+    audioPendiente = null;
+
+    alert("Audio enviado correctamente.");
+
+  } catch (error) {
+
+    console.error("Error al enviar audio:", error);
+
+    alert("No se pudo enviar el audio: " + error.message);
+
+  }
+
+}
   
 // ========================================
 // ENVIAR MENSAJE
@@ -2897,6 +2984,41 @@ botonEnviarAudio.style.border = "none";
 botonEnviarAudio.style.borderRadius = "8px";
 
 document.body.appendChild(botonEnviarAudio);
+
+botonEnviarAudio.addEventListener("click", async () => {
+
+  botonEnviarAudio.disabled = true;
+  botonEnviarAudio.textContent = "⏳ Enviando...";
+
+  await enviarAudioAdmin();
+
+  botonEnviarAudio.disabled = false;
+  botonEnviarAudio.textContent = "📤 Enviar audio";
+
+});
+  
+const botonCancelarAudio = document.createElement("button");
+
+botonCancelarAudio.textContent = "❌ Cancelar";
+
+botonCancelarAudio.style.position = "fixed";
+botonCancelarAudio.style.top = "135px";
+botonCancelarAudio.style.left = "145px";
+botonCancelarAudio.style.zIndex = "99999";
+botonCancelarAudio.style.padding = "10px";
+botonCancelarAudio.style.background = "#c62828";
+botonCancelarAudio.style.color = "white";
+botonCancelarAudio.style.border = "none";
+botonCancelarAudio.style.borderRadius = "8px";
+
+document.body.appendChild(botonCancelarAudio);
+
+botonCancelarAudio.addEventListener("click", () => {
+  audioPendiente = null;
+  reproductor.remove();
+  botonEnviarAudio.remove();
+  botonCancelarAudio.remove();
+});
   
 reproductor.style.position = "fixed";
 reproductor.style.top = "80px";
