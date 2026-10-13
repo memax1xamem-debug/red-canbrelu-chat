@@ -2891,25 +2891,6 @@ grabadorAudio.onstop = () => {
         }
       );
 
-grabadorAudio.addEventListener("stop", () => {
-
-  const audioBlob = new Blob(fragmentosAudio, {
-    type: grabadorAudio.mimeType
-  });
-
-  const urlAudio = URL.createObjectURL(audioBlob);
-
-  const reproductor = document.createElement("audio");
-
-  reproductor.controls = true;
-  reproductor.src = urlAudio;
-  reproductor.style.width = "100%";
-
-  listaMensajes.appendChild(reproductor);
-
-  listaMensajes.scrollTop = listaMensajes.scrollHeight;
-
-});
             
       grabadorAudio.start();
 
