@@ -2858,6 +2858,8 @@ botonAudio.addEventListener("click", async () => {
 
           if (event.data.size > 0) {
             fragmentosAudio.push(event.data);
+            console.log("Audio grabado:", event.data.size, "bytes");
+            
           }
 
         }
