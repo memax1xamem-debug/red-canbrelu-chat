@@ -425,6 +425,37 @@ let flujoMicrofono = null;
 let grabandoAudio = false;
 
 // ========================================
+// CANCELAR AUDIO GRABADO
+// ========================================
+
+document.getElementById("cancelarAudio")
+  .addEventListener("click", () => {
+
+    const vistaPrevia =
+      document.getElementById("vistaPreviaAudio");
+
+    const reproductor =
+      document.getElementById("reproductorAudio");
+
+    reproductor.pause();
+
+    if (reproductor.src.startsWith("blob:")) {
+      URL.revokeObjectURL(reproductor.src);
+    }
+
+    reproductor.removeAttribute("src");
+    reproductor.load();
+
+    audioGrabado = null;
+    fragmentosAudio = [];
+
+    vistaPrevia.style.display = "none";
+
+    console.log("Audio cancelado");
+
+  });
+  
+// ========================================
 // INICIAR Y DETENER GRABACIÓN DE VOZ
 // ========================================
 
