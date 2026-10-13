@@ -3112,10 +3112,6 @@ intervaloGrabacion = setInterval(() => {
   // DETENER GRABACIÓN
   if (grabadorAudio) {
 
-  grabadorAudio.addEventListener("dataavailable", (event) => {
-  alert("Audio recibido: " + event.data.size + " bytes");
-}, { once: true });
-
 grabadorAudio.stop();
 
 grabadorAudio.stream
