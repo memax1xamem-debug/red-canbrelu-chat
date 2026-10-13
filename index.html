@@ -1519,6 +1519,9 @@ if (datos.sticker === true && datos.stickerUrl) {
 
 } else if (datos.audio === true && datos.archivoUrl) {
 
+mensaje.style.width = "320px";
+mensaje.style.maxWidth = "95%";
+  
   const reproductor = document.createElement("audio");
 
   reproductor.controls = true;
