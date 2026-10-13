@@ -926,6 +926,8 @@ const botonAudio =
 let grabadorAudio = null;
 let fragmentosAudio = [];
 let grabandoAudio = false;
+  let inicioGrabacion = 0;
+let intervaloGrabacion = null;
 let audioPendiente = null;  
   
 const cerrarSesion =
@@ -2142,6 +2144,8 @@ if (datos.sticker === true && datos.stickerUrl) {
   reproductor.src = datos.archivoUrl;
 
   reproductor.style.width = "100%";
+  reproductor.style.flex = "1 1 100%";
+reproductor.style.minWidth = "0";
   reproductor.style.maxWidth = "260px";
   reproductor.style.display = "block";
 
@@ -2946,8 +2950,6 @@ botonAudio.addEventListener("click", async () => {
 
 grabadorAudio.onstop = () => {
 
-  alert("Terminó la grabación. Voy a mostrar el reproductor.");
-
   const audioBlob = new Blob(fragmentosAudio, {
     type: grabadorAudio.mimeType
   });
@@ -2974,7 +2976,9 @@ reproductor.style.margin = "10px auto";
 const panelAudio = document.createElement("div");
 
 panelAudio.style.display = "flex";
-panelAudio.style.flexDirection = "column";
+panelAudio.style.flexDirection = "row";
+panelAudio.style.flexWrap = "wrap";
+panelAudio.style.justifyContent = "center";
 panelAudio.style.alignItems = "center";
 panelAudio.style.gap = "10px";
 panelAudio.style.padding = "10px";
@@ -3065,6 +3069,25 @@ reproductor.style.background = "white";
             
       grabadorAudio.start();
 
+inicioGrabacion = Date.now();
+
+intervaloGrabacion = setInterval(() => {
+
+  const segundos = Math.floor(
+    (Date.now() - inicioGrabacion) / 1000
+  );
+
+  const minutos = Math.floor(segundos / 60);
+  const restoSegundos = segundos % 60;
+
+  const tiempo =
+    String(minutos).padStart(2, "0") + ":" +
+    String(restoSegundos).padStart(2, "0");
+
+  botonAudio.textContent = "⏹️ " + tiempo;
+
+}, 1000);
+      
       grabandoAudio = true;
 
       botonAudio.textContent = "⏹️";
@@ -3101,6 +3124,9 @@ grabadorAudio.stream
     
   }
 
+clearInterval(intervaloGrabacion);
+intervaloGrabacion = null;
+  
   grabandoAudio = false;
 
   botonAudio.textContent = "🎤";
