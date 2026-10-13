@@ -441,6 +441,141 @@ let flujoMicrofono = null;
 let grabandoAudio = false;
 
 // ========================================
+// ENVIAR MENSAJE DE VOZ
+// ========================================
+
+let enviandoAudio = false;
+
+async function enviarMensajeAudio() {
+
+  if (enviandoAudio || !audioGrabado) return;
+
+  if (nombreUsuario === "") {
+    alert("Primero guardá tu nombre.");
+    return;
+  }
+
+  enviandoAudio = true;
+
+  const botonEnviarAudio =
+    document.getElementById("enviarAudio");
+
+  botonEnviarAudio.disabled = true;
+  botonEnviarAudio.textContent = "⏳";
+
+  try {
+
+    const formData = new FormData();
+
+    const extension =
+      audioGrabado.type.includes("mp4") ? "m4a" :
+      audioGrabado.type.includes("ogg") ? "ogg" :
+      "webm";
+
+    const archivoAudio = new File(
+      [audioGrabado],
+      "audio-" + Date.now() + "." + extension,
+      { type: audioGrabado.type }
+    );
+
+    if (archivoAudio.size > 10 * 1024 * 1024) {
+      throw new Error("El audio supera los 10 MB.");
+    }
+
+    formData.append("file", archivoAudio);
+    formData.append("upload_preset", "chat_archivos");
+
+    const respuesta = await fetch(
+      "https://api.cloudinary.com/v1_1/qqmjx1vh/auto/upload",
+      {
+        method: "POST",
+        body: formData
+      }
+    );
+
+    const resultado = await respuesta.json();
+
+    if (!respuesta.ok) {
+      throw new Error(
+        resultado?.error?.message ||
+        "No se pudo subir el audio."
+      );
+    }
+
+    await push(
+      ref(
+        db,
+        "conversaciones/" + usuarioId + "/mensajes"
+      ),
+      {
+        tipo: "cliente",
+        nombre: nombreUsuario,
+        usuarioId: usuarioId,
+        fecha: Date.now(),
+        leido: false,
+
+        archivo: true,
+        archivoNombre: archivoAudio.name,
+        archivoTipo: archivoAudio.type,
+        archivoTamano: archivoAudio.size,
+        archivoUrl: resultado.secure_url,
+
+        audio: true,
+        texto: ""
+      }
+    );
+
+    await set(
+      ref(db, "conversaciones/" + usuarioId + "/ultimoMensaje"),
+      Date.now()
+    );
+
+    await set(
+      ref(db, "conversaciones/" + usuarioId + "/ultimoTexto"),
+      "🎤 Mensaje de voz"
+    );
+
+    // Limpiar la grabación enviada
+    const reproductor =
+      document.getElementById("reproductorAudio");
+
+    reproductor.pause();
+
+    if (reproductor.src.startsWith("blob:")) {
+      URL.revokeObjectURL(reproductor.src);
+    }
+
+    reproductor.removeAttribute("src");
+    reproductor.load();
+
+    audioGrabado = null;
+    fragmentosAudio = [];
+
+    document.getElementById("vistaPreviaAudio")
+      .style.display = "none";
+
+    console.log("Audio enviado correctamente");
+
+  } catch (error) {
+
+    console.error("Error al enviar audio:", error);
+
+    alert("No se pudo enviar el audio: " + error.message);
+
+  } finally {
+
+    enviandoAudio = false;
+    botonEnviarAudio.disabled = false;
+    botonEnviarAudio.textContent = "➤";
+
+  }
+}
+
+// Conectar el botón de envío
+document.getElementById("enviarAudio")
+  .addEventListener("click", enviarMensajeAudio);
+  
+// ========================================
 // CANCELAR AUDIO GRABADO
 // ========================================
 
