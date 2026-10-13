@@ -2967,16 +2967,25 @@ audioPendiente = audioBlob;
   reproductor.style.display = "block";
 reproductor.style.margin = "10px auto";
 
-document.body.appendChild(reproductor);
+const panelAudio = document.createElement("div");
+
+panelAudio.style.display = "flex";
+panelAudio.style.flexDirection = "column";
+panelAudio.style.alignItems = "center";
+panelAudio.style.gap = "10px";
+panelAudio.style.padding = "10px";
+panelAudio.style.background = "#e8f5e9";
+panelAudio.style.borderRadius = "10px";
+panelAudio.style.margin = "10px";
+
+panelAudio.appendChild(reproductor);
+
+listaMensajes.parentElement.appendChild(panelAudio);
 
 const botonEnviarAudio = document.createElement("button");
 
 botonEnviarAudio.textContent = "📤 Enviar audio";
 
-botonEnviarAudio.style.position = "fixed";
-botonEnviarAudio.style.top = "135px";
-botonEnviarAudio.style.left = "10px";
-botonEnviarAudio.style.zIndex = "99999";
 botonEnviarAudio.style.padding = "10px";
 botonEnviarAudio.style.background = "#075e54";
 botonEnviarAudio.style.color = "white";
@@ -3001,10 +3010,6 @@ const botonCancelarAudio = document.createElement("button");
 
 botonCancelarAudio.textContent = "❌ Cancelar";
 
-botonCancelarAudio.style.position = "fixed";
-botonCancelarAudio.style.top = "135px";
-botonCancelarAudio.style.left = "145px";
-botonCancelarAudio.style.zIndex = "99999";
 botonCancelarAudio.style.padding = "10px";
 botonCancelarAudio.style.background = "#c62828";
 botonCancelarAudio.style.color = "white";
@@ -3020,10 +3025,6 @@ botonCancelarAudio.addEventListener("click", () => {
   botonCancelarAudio.remove();
 });
   
-reproductor.style.position = "fixed";
-reproductor.style.top = "80px";
-reproductor.style.left = "10px";
-reproductor.style.zIndex = "99999";
 reproductor.style.background = "white";
 
 };
