@@ -575,30 +575,15 @@
 @media (max-width: 600px) {
 
   .entrada {
-    padding: 12px 8px 18px 8px;
-    gap: 6px;
-  }
-
-  .entrada textarea {
-    min-height: 54px;
-    padding: 15px 14px;
-  }
-
-}
-
-@media (max-width: 600px) {
-
-  .entrada {
     gap: 4px;
     padding: 8px 5px 14px;
   }
 
   .entrada button {
-  width: 34px;
-  height: 40px;
-  min-width: 34px;
-  font-size: 16px;
-}
+    width: 34px;
+    height: 40px;
+    min-width: 34px;
+    font-size: 16px;
   }
 
   .entrada textarea {
@@ -608,8 +593,7 @@
     font-size: 15px;
   }
 
-}
-      
+}      
       </style>
 </head>
 
@@ -2937,6 +2921,11 @@ botonAudio.addEventListener("click", async () => {
   // EMPEZAR A GRABAR
   if (!grabandoAudio) {
 
+if (audioPendiente) {
+  alert("Primero enviá o cancelá el audio anterior.");
+  return;
+}
+    
     try {
 
       const stream =
