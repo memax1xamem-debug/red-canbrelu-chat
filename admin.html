@@ -2992,7 +2992,7 @@ botonEnviarAudio.style.color = "white";
 botonEnviarAudio.style.border = "none";
 botonEnviarAudio.style.borderRadius = "8px";
 
-document.body.appendChild(botonEnviarAudio);
+panelAudio.appendChild(botonEnviarAudio);
 
 botonEnviarAudio.addEventListener("click", async () => {
 
@@ -3016,7 +3016,7 @@ botonCancelarAudio.style.color = "white";
 botonCancelarAudio.style.border = "none";
 botonCancelarAudio.style.borderRadius = "8px";
 
-document.body.appendChild(botonCancelarAudio);
+panelAudio.appendChild(botonCancelarAudio);
 
 botonCancelarAudio.addEventListener("click", () => {
   audioPendiente = null;
