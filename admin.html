@@ -2132,6 +2132,20 @@ if (datos.sticker === true && datos.stickerUrl) {
 
   texto.appendChild(imagenSticker);
 
+} else if (datos.audio === true && datos.archivoUrl) {
+
+  const reproductor = document.createElement("audio");
+
+  reproductor.controls = true;
+  reproductor.preload = "metadata";
+  reproductor.src = datos.archivoUrl;
+
+  reproductor.style.width = "100%";
+  reproductor.style.maxWidth = "260px";
+  reproductor.style.display = "block";
+
+  texto.appendChild(reproductor);
+  
 } else if (datos.archivo === true && datos.archivoUrl) {
 
 if (
