@@ -2852,6 +2852,32 @@ botonAudio.addEventListener("click", async () => {
       grabadorAudio =
         new MediaRecorder(stream);
 
+grabadorAudio.onstop = () => {
+
+  const audioBlob = new Blob(fragmentosAudio, {
+    type: grabadorAudio.mimeType
+  });
+
+  if (audioBlob.size === 0) {
+    alert("No se pudo grabar el audio.");
+    return;
+  }
+
+  const urlAudio = URL.createObjectURL(audioBlob);
+
+  const reproductor = document.createElement("audio");
+
+  reproductor.controls = true;
+  reproductor.src = urlAudio;
+  reproductor.style.width = "100%";
+  reproductor.style.maxWidth = "260px";
+
+  listaMensajes.appendChild(reproductor);
+
+  listaMensajes.scrollTop = listaMensajes.scrollHeight;
+
+};
+      
       grabadorAudio.addEventListener(
         "dataavailable",
         (event) => {
