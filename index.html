@@ -1521,18 +1521,195 @@ if (datos.sticker === true && datos.stickerUrl) {
 
 mensaje.style.width = "320px";
 mensaje.style.maxWidth = "95%";
+  mensaje.style.padding = "8px";
+mensaje.style.borderRadius = "18px";
+mensaje.style.overflow = "hidden";
   
   const reproductor = document.createElement("audio");
 
-  reproductor.controls = true;
+reproductor.classList.add("audio-chat");
+  
+  reproductor.controls = false;
+  reproductor.style.display = "none";
   reproductor.preload = "metadata";
   reproductor.src = datos.archivoUrl;
 
   reproductor.style.width = "100%";
-  reproductor.style.maxWidth = "260px";
-  reproductor.style.display = "block";
+reproductor.style.maxWidth = "100%";
+reproductor.style.height = "44px";
+reproductor.style.display = "block";
+reproductor.style.borderRadius = "22px";
+  reproductor.style.boxSizing = "border-box";
+reproductor.style.minWidth = "0";
+reproductor.style.background =
+  datos.tipo === "cliente" ? "#d9f5e5" : "#f1f3f4";
 
   mensaje.appendChild(reproductor);
+
+  const contenedorAudio = document.createElement("div");
+contenedorAudio.classList.add("contenedor-audio");
+  contenedorAudio.style.display = "flex";
+contenedorAudio.style.alignItems = "center";
+contenedorAudio.style.gap = "6px";
+contenedorAudio.style.width = "100%";
+contenedorAudio.style.minWidth = "0";
+contenedorAudio.style.padding = "6px 4px";
+
+const botonPlay = document.createElement("button");
+botonPlay.type = "button";
+botonPlay.classList.add("boton-play-audio");
+botonPlay.textContent = "▶";
+  botonPlay.style.width = "40px";
+botonPlay.style.height = "40px";
+botonPlay.style.minWidth = "40px";
+botonPlay.style.borderRadius = "50%";
+botonPlay.style.border = "none";
+botonPlay.style.background =
+  datos.tipo === "cliente" ? "#075e54" : "#607d8b";
+botonPlay.style.color = "white";
+botonPlay.style.fontSize = "18px";
+botonPlay.style.cursor = "pointer";
+botonPlay.style.display = "flex";
+botonPlay.style.alignItems = "center";
+botonPlay.style.justifyContent = "center";
+botonPlay.style.flexShrink = "0";
+
+botonPlay.addEventListener("click", () => {
+  if (reproductor.paused) {
+    reproductor.play().catch(console.error);
+  } else {
+    reproductor.pause();
+  }
+});
+
+reproductor.addEventListener("play", () => {
+
+  document.querySelectorAll("audio").forEach((otroAudio) => {
+    if (otroAudio !== reproductor && !otroAudio.paused) {
+      otroAudio.pause();
+    }
+  });
+
+  botonPlay.textContent = "⏸";
+
+  botonPlay.setAttribute("aria-label", "Pausar audio");
+  
+});
+
+reproductor.addEventListener("pause", () => {
+  botonPlay.textContent = "▶";
+  botonPlay.setAttribute("aria-label", "Reproducir audio");
+});
+  
+reproductor.addEventListener("ended", () => {
+  reproductor.currentTime = 0;
+  barraAudio.value = "0";
+  botonPlay.textContent = "▶";
+botonPlay.setAttribute("aria-label", "Reproducir audio");
+  actualizarTiempoAudio();
+});
+
+  
+contenedorAudio.appendChild(botonPlay);
+
+  const barraAudio = document.createElement("input");
+barraAudio.type = "range";
+barraAudio.min = "0";
+barraAudio.max = "100";
+barraAudio.value = "0";
+barraAudio.step = "0.1";
+
+barraAudio.style.flex = "1";
+barraAudio.style.minWidth = "0";
+barraAudio.style.accentColor = "#075e54";
+  barraAudio.style.height = "6px";
+barraAudio.style.cursor = "pointer";
+barraAudio.style.margin = "0";
+barraAudio.style.flex = "1";
+
+reproductor.addEventListener("timeupdate", () => {
+  if (Number.isFinite(reproductor.duration) &&
+      reproductor.duration > 0) {
+    barraAudio.value =
+      (reproductor.currentTime / reproductor.duration) * 100;
+  }
+});
+
+barraAudio.addEventListener("input", () => {
+  if (Number.isFinite(reproductor.duration) &&
+      reproductor.duration > 0) {
+    reproductor.currentTime =
+      (barraAudio.value / 100) * reproductor.duration;
+  }
+});
+
+contenedorAudio.appendChild(barraAudio);
+
+  const tiempoAudio = document.createElement("span");
+
+tiempoAudio.textContent = "0:00 / 0:00";
+tiempoAudio.style.fontSize = "12px";
+  tiempoAudio.style.fontWeight = "500";
+tiempoAudio.style.fontVariantNumeric = "tabular-nums";
+tiempoAudio.style.flexShrink = "0";
+tiempoAudio.style.whiteSpace = "nowrap";
+tiempoAudio.style.color =
+  datos.tipo === "cliente" ? "#075e54" : "#455a64";
+
+function formatoTiempo(segundos) {
+  if (!Number.isFinite(segundos)) return "0:00";
+
+  const minutos = Math.floor(segundos / 60);
+  const resto = Math.floor(segundos % 60);
+
+  return minutos + ":" + String(resto).padStart(2, "0");
+}
+
+function actualizarTiempoAudio() {
+  tiempoAudio.textContent =
+    formatoTiempo(reproductor.currentTime) +
+    " / " +
+    formatoTiempo(reproductor.duration);
+}
+
+reproductor.addEventListener("loadedmetadata", actualizarTiempoAudio);
+reproductor.addEventListener("durationchange", actualizarTiempoAudio);
+reproductor.addEventListener("timeupdate", actualizarTiempoAudio);
+
+contenedorAudio.appendChild(tiempoAudio);
+
+  const botonVelocidad = document.createElement("button");
+
+botonVelocidad.type = "button";
+botonVelocidad.textContent = "1x";
+botonVelocidad.title = "Cambiar velocidad";
+
+botonVelocidad.style.border = "none";
+botonVelocidad.style.borderRadius = "12px";
+botonVelocidad.style.padding = "5px 7px";
+botonVelocidad.style.background =
+  datos.tipo === "cliente" ? "#c5ebd6" : "#e0e7eb";
+botonVelocidad.style.color = "#075e54";
+botonVelocidad.style.fontSize = "12px";
+botonVelocidad.style.fontWeight = "bold";
+botonVelocidad.style.cursor = "pointer";
+botonVelocidad.style.flexShrink = "0";
+
+const velocidades = [1, 1.5, 2];
+let indiceVelocidad = 0;
+
+botonVelocidad.addEventListener("click", () => {
+  indiceVelocidad = (indiceVelocidad + 1) % velocidades.length;
+
+  const velocidad = velocidades[indiceVelocidad];
+
+  reproductor.playbackRate = velocidad;
+  botonVelocidad.textContent = velocidad + "x";
+});
+
+contenedorAudio.appendChild(botonVelocidad);
+  
+mensaje.appendChild(contenedorAudio);
   
 } else if (datos.archivo === true && datos.archivoUrl) {
 
