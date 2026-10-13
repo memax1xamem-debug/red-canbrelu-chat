@@ -2937,12 +2937,16 @@ grabadorAudio.addEventListener("stop", () => {
   // DETENER GRABACIÓN
   if (grabadorAudio) {
 
-    grabadorAudio.stop();
+  grabadorAudio.addEventListener("dataavailable", (event) => {
+  alert("Audio recibido: " + event.data.size + " bytes");
+}, { once: true });
 
-    grabadorAudio.stream
-      .getTracks()
-      .forEach(track => track.stop());
+grabadorAudio.stop();
 
+grabadorAudio.stream
+  .getTracks()
+  .forEach(track => track.stop());
+    
   }
 
   grabandoAudio = false;
