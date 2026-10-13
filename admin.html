@@ -2582,12 +2582,16 @@ async function enviarAudioAdmin() {
 
     alert("Audio enviado correctamente.");
 
+    return true;
+
   } catch (error) {
 
     console.error("Error al enviar audio:", error);
 
     alert("No se pudo enviar el audio: " + error.message);
 
+return false;
+    
   }
 
 }
@@ -2999,7 +3003,16 @@ botonEnviarAudio.addEventListener("click", async () => {
   botonEnviarAudio.disabled = true;
   botonEnviarAudio.textContent = "⏳ Enviando...";
 
-  await enviarAudioAdmin();
+ const enviado = await enviarAudioAdmin();
+
+if (enviado === true) {
+
+  reproductor.pause();
+  reproductor.src = "";
+
+  panelAudio.remove();
+
+}
 
   botonEnviarAudio.disabled = false;
   botonEnviarAudio.textContent = "📤 Enviar audio";
@@ -3019,10 +3032,14 @@ botonCancelarAudio.style.borderRadius = "8px";
 panelAudio.appendChild(botonCancelarAudio);
 
 botonCancelarAudio.addEventListener("click", () => {
+
   audioPendiente = null;
-  reproductor.remove();
-  botonEnviarAudio.remove();
-  botonCancelarAudio.remove();
+
+  reproductor.pause();
+  reproductor.src = "";
+
+  panelAudio.remove();
+
 });
   
 reproductor.style.background = "white";
